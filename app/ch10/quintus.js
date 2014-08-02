@@ -299,7 +299,9 @@ var Quintus = function(opts) {
     var touchDevice = 'ontouchstart' in document;
     options = options || {};
     id = id || "quintus";
+    
     Q.el = $(_.isString(id) ? "#" + id : id);
+    console.log("existing element "+Q.el);
 
     if(Q.el.length === 0) {
       Q.el = $("<canvas width='320' height='420'></canvas>")

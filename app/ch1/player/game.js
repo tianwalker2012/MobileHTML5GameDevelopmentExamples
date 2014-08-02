@@ -89,19 +89,28 @@ var PlayerShip = function() {
    this.x = Game.width/2 - this.w / 2;
    this.y = Game.height - 10 - this.h;
    this.vx = 0;
+   this.vy = 0;
 
    this.maxVel = 200;
 
    this.step = function(dt) {
      if(Game.keys['left']) { this.vx = -this.maxVel; }
      else if(Game.keys['right']) { this.vx = this.maxVel; }
-     else { this.vx = 0; }
+     else if(Game.keys['fire']) {this.vy = -this.maxVel;}
+     else if(Game.keys['back']) {this.vy = this.maxVel;}
+     else { this.vx = 0;this.vy = 0;}
 
      this.x += this.vx * dt;
+     this.y += this.vy * dt;
 
      if(this.x < 0) { this.x = 0; }
      else if(this.x > Game.width - this.w) { 
        this.x = Game.width - this.w 
+     }
+
+     if(this.y < 0) { this.y = 0; }
+     else if(this.y > Game.height - this.h) { 
+       this.y = Game.height - this.h;
      }
    }
 

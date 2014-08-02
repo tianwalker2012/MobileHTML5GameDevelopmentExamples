@@ -35,6 +35,7 @@ var startGame = function() {
   Game.setBoard(3,new TitleScreen("Alien Invasion", 
                                   "Press fire to start playing",
                                   playGame));
+  Game.setBoard(4, new TouchControls());
 };
 
 var level1 = [
@@ -56,6 +57,7 @@ var playGame = function() {
   board.add(new PlayerShip());
   board.add(new Level(level1,winGame));
   Game.setBoard(3,board);
+  Game.setBoard(4, new TouchControls());
   Game.setBoard(5,new GamePoints(0));
 };
 
@@ -190,6 +192,7 @@ PlayerMissile.prototype.step = function(dt)  {
   this.y += this.vy * dt;
   var collision = this.board.collide(this,OBJECT_ENEMY);
   if(collision) {
+    //Mean calculate how much damage could I cause.
     collision.hit(this.damage);
     this.board.remove(this);
   } else if(this.y < -this.h) { 
@@ -204,6 +207,7 @@ var Enemy = function(blueprint,override) {
   this.merge(override);
 };
 
+//This javascript term for inheritance.
 Enemy.prototype = new Sprite();
 Enemy.prototype.type = OBJECT_ENEMY;
 
@@ -221,6 +225,7 @@ Enemy.prototype.step = function(dt) {
   this.x += this.vx * dt;
   this.y += this.vy * dt;
 
+//Use collided object is much better than this.
   var collision = this.board.collide(this,OBJECT_PLAYER);
   if(collision) {
     collision.hit(this.damage);

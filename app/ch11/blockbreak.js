@@ -5,7 +5,7 @@ $(function() {
 
   Q.input.keyboardControls();
   Q.input.touchControls({ 
-            controls:  [ ['left','<' ],[],[],[],['right','>' ] ]
+            controls:  [ ['left','<' ],['right','>' ] ]
           });
 
   Q.Paddle = Q.Sprite.extend({

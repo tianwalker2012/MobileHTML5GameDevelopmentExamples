@@ -32,16 +32,36 @@ var startGame = function() {
 
 var playGame = function() {
   var board = new GameBoard();
+  Game.started = true;
   board.add(new Enemy(enemies.basic));
   board.add(new Enemy(enemies.basic, { x: 150 }));
   board.add(new PlayerShip());
   Game.setBoard(3,board);
 }
 
+function appendDebugArea(textInfo)
+{
+  var updated = textInfo.concat(":"+document.getElementById('debug').innerHTML);
+  document.getElementById('debug').innerHTML = updated;
+}
+
 window.addEventListener("load", function() {
   Game.initialize("game",sprites,startGame);
-
+  
 });
+
+window.onblur = function windowOnBlur() {
+  //if (!gameOver && !game.paused) {
+  //  togglePaused();
+  //}
+  appendDebugArea('Lost focus!');
+}
+window.onfocus = function windowOnFocus() {
+//if (game.paused) {
+//togglePaused();
+//}
+  appendDebugArea('Regain focus');
+}
 
 var Starfield = function(speed,opacity,numStars,clear) {
 
@@ -114,15 +134,24 @@ var PlayerShip = function() {
   this.step = function(dt) {
     if(Game.keys['left']) { this.vx = -this.maxVel; }
     else if(Game.keys['right']) { this.vx = this.maxVel; }
-    else { this.vx = 0; }
+    else { this.vx = 0;}
+    
+    if(Game.keys['forth']) {this.vy = -this.maxVel;} 
+    else if(Game.keys['back']) {this.vy = this.maxVel;} 
+    else { this.vy = 0;}
 
-    this.x += this.vx * dt;
+     this.x += this.vx * dt;
+     this.y += this.vy * dt;
 
-    if(this.x < 0) { this.x = 0; }
-    else if(this.x > Game.width - this.w) { 
-      this.x = Game.width - this.w 
-    }
+     if(this.x < 0) { this.x = 0; }
+     else if(this.x > Game.width - this.w) { 
+       this.x = Game.width - this.w 
+     }
 
+     if(this.y < 0) { this.y = 0; }
+     else if(this.y > Game.height - this.h) { 
+       this.y = Game.height - this.h;
+     }
     this.reload-=dt;
     if(Game.keys['fire'] && this.reload < 0) {
       Game.keys['fire'] = false;

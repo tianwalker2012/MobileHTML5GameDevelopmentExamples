@@ -97,7 +97,7 @@ var Game = new function() {
       this.canvas.width = w;
       this.canvas.height = h;
     }
-
+    //Put the convas on the visible region. 
     this.canvas.style.position='absolute';
     this.canvas.style.left="0px";
     this.canvas.style.top="0px";

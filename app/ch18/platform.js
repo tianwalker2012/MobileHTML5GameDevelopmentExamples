@@ -72,6 +72,10 @@ $(function() {
         type: 4,
         health: 100,
         collisionMask: 1,
+        touchCount:0,
+        stepCount:0,
+        oldTouchSpeed:0,
+        touchSpeed:0,
         direction: 'right'
       }));
 
@@ -106,8 +110,19 @@ $(function() {
           x = p.direction == 'right' ? (p.x + p.w) : p.x;
       this.parent.insert(new Q.Bullet({ x: x, y: p.y + p.h/2, vx: vx }));
     },
+    debugInfo: function(textInfo){
+      debugRegion = document.getElementById('debug');
+      debugRegion.innerHTML = textInfo;
+    },
 
+    appendDebugInfo:function(textInfo){
+      debugRegion = document.getElementById('debug');
+      textInfo = textInfo+" : "+debugRegion.innerHTML;
+      debugRegion.innerHTML = textInfo;
+    },
     jump: function() {
+      this.p.touchCount += 1;
+      //this.debugInfo('Total Count:'+ this.p.touchCount+", this.p.vy:"+this.p.vy);
       if(this.p.standing >= 0) {
         this.p.vy = -this.p.speed * 1.4;
         this.p.standing = -1;
@@ -122,6 +137,25 @@ $(function() {
 
     step: function(dt) {
       var p = this.p;
+      p.stepCount += 1;
+      var oldWeight = Math.pow((100 - p.stepCount)/100.0, 2);
+      var newWeight = 1 - oldWeight;
+      p.touchSpeed = Math.floor((oldWeight * p.oldTouchSpeed + newWeight*p.touchCount/p.stepCount)*1000);
+
+      //this.debugInfo("click speed:"+ p.touchSpeed + ",vy:"+Math.floor(p.vy));
+      if(p.stepCount == 100){
+          p.oldTouchSpeed = p.touchSpeed;
+          p.stepCount = 0;
+          p.touchCount = 0;
+      }
+      if(p.stepCount % 20 == 0){
+         this.debugInfo("speed:"+ p.touchSpeed + ",y:"+p.vy + ",impulse:"+Math.floor(p.impulse));
+         p.impulse = -20;
+        if(this.touchSpeed > 100){
+              this.p.vy = this.p.vy - p.speed * (this.touchSpeed - 100) * 20;
+        }
+      }
+
       if(p.animation == 'fire_right' || p.animation == 'fire_left') {
         if(this.p.standing > 0) {
           this.p.vx = 0;
@@ -190,9 +224,9 @@ $(function() {
     stage.collisionLayer(tiles);
     var player = stage.insert(new Q.Player({ x:100, y:0, z:3, sheet: 'man' }));
 
-    stage.insert(new Q.Enemy({ x:400, y:0, z:3 }));
-    stage.insert(new Q.Enemy({ x:600, y:0, z:3 }));
-    stage.insert(new Q.Enemy({ x:1200, y:100, z:3 }));
+    //stage.insert(new Q.Enemy({ x:400, y:0, z:3 }));
+    //stage.insert(new Q.Enemy({ x:600, y:0, z:3 }));
+    //stage.insert(new Q.Enemy({ x:1200, y:100, z:3 }));
     stage.insert(new Q.Enemy({ x:1600, y:0, z:3 }));
 
     stage.add('viewport');

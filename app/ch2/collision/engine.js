@@ -18,7 +18,7 @@ var Game = new function() {
   };
 
   // Handle Input
-  var KEY_CODES = { 37:'left', 39:'right', 32 :'fire' };
+  var KEY_CODES = { 37:'left', 39:'right', 32 :'fire', 38:'forth', 40:'back'};
   this.keys = {};
 
   this.setupInput = function() {
@@ -35,6 +35,47 @@ var Game = new function() {
        e.preventDefault();
       }
     },false);
+
+    this.canvas.addEventListener('touchstart', function (e) {
+       //alert('touch start');
+       var midWidth = Game.canvas.width/2.0;
+       var midHeight = Game.canvas.height/2.0;
+      //document.getElementById("debug").innerHTML ="width:"+midWidth+","+midHeight+"game started:"+Game.started+",touch:"+e.touches[0].clientX+","+e.touches[0].clientY+",pageX:"+e.touches[0].pageX+","+e.touches[0].pageY;
+      
+       if(Game.started){
+          if(e.touches[0].pageX < midWidth){
+              Game.keys[KEY_CODES[37]] = true;
+          }else{
+              Game.keys[KEY_CODES[39]] = true;
+          }
+
+          if(e.touches[0].pageY < midHeight){
+              Game.keys[KEY_CODES[38]] = true;
+          }else{
+              Game.keys[KEY_CODES[40]] = true;
+          }
+
+
+        }
+        
+       Game.keys[KEY_CODES[32]] = true;
+       //alert('end start');
+    });
+
+    this.canvas.addEventListener('touchend', function(e){
+      //alert('touch end');
+      //alert('touch end begin');
+      //document.getElementById("debug").innerHTML = "touch:"+e.touches[0].clientX+","+e.touches[0].clientY+",pageX:"+e.touches[0].pageX+","+e.touches[0].pageY;
+      //document.getElementById("debug").innerHTML = "touch up";
+      Game.keys[KEY_CODES[32]] = false;
+      Game.keys[KEY_CODES[37]] = false;
+      Game.keys[KEY_CODES[39]] = false;
+
+      Game.keys[KEY_CODES[38]] = false;
+      Game.keys[KEY_CODES[40]] = false;
+      //alert('touch end');
+    });
+
   }
 
   // Game Loop

@@ -18,7 +18,7 @@ var Game = new function() {
   };
 
   // Handle Input
-  var KEY_CODES = { 37:'left', 39:'right', 32 :'fire' };
+  var KEY_CODES = { 37:'left', 39:'right', 32 :'fire',38:'fire', 40:'back' };
   this.keys = {};
 
   this.setupInput = function() {

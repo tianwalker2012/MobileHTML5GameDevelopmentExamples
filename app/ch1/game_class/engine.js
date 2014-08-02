@@ -22,6 +22,7 @@ var Game = new function() {
 
   this.setupInput = function() {
     window.addEventListener('keydown',function(e) {
+      console.log('key code:'+event.keyCode + ","+e);
       if(KEY_CODES[event.keyCode]) {
        Game.keys[KEY_CODES[event.keyCode]] = true;
        e.preventDefault();
@@ -29,6 +30,7 @@ var Game = new function() {
     },false);
 
     window.addEventListener('keyup',function(e) {
+      console.log('key up:'+ event.keyCode + ", e is:"+e);
       if(KEY_CODES[event.keyCode]) {
        Game.keys[KEY_CODES[event.keyCode]] = false; 
        e.preventDefault();

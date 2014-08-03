@@ -16,7 +16,7 @@
     <meta name=apple-mobile-web-app-status-bar-style content=black>
     <style>
       body { padding:0px; margin:0px; background-color:#1e7572; }
-      #quintus { background-color:#CCC; }
+      #quintus { background-color:#1e7572; }
     </style>
   </head>
   <body>
@@ -26,12 +26,22 @@
         var dr = document.getElementById('debug');
         //dr.innerHTML = info;
       }
+
+
+      $(window).resize(function() {
+        console.log('window was resized:'+window.innerHeight);
+        var canvas = document.getElementById('quintus');
+        canvas.height = window.innerHeight;
+        Q.height = window.innerHeight;
+        //Q.InputSystem.drawButtons();
+      });
+
       var Q = Quintus()
               .include("Input,Sprites,Scenes")
               .setup()
-              .controls();
 
-
+      Q.height = window.innerHeight;
+      Q.controls();
       Q.Ship = Q.MovingSprite.extend({
         step: function(dt) {
           if(Q.inputs['left'] || Q.inputs['right'] || Q.inputs['fire']){
@@ -251,10 +261,21 @@
         }
       });
 
+      Q.StretchBackground = Q.Sprite.extend({
+        draw: function(ctx) {
+          if(!ctx) { ctx = Q.ctx; }
+          ctx.drawImage(Q.asset(this.asset),
+            this.fx(frame),this.fy(frame),
+            this.tilew, this.tileh,
+            0,0,
+            Q.width, Q.height);
+        }
+      });
+
       Q.load(['lander.png','backgroundv1.png', 
               'lander_thrust.png','easy.png', 'mapv1.png','mapv2.png', 'mapv3.png'], function() {
-
-
+        Q.height = window.innerHeight;
+        console.log('current height is:'+ Q.height);
         Q.scene("level",new Q.Scene(function(stage) {
           stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
           stage.insert(new Q.Sprite({ asset: "easy.png" }));
@@ -327,7 +348,7 @@
           ship.imageData = Q.imageData(Q.asset('lander.png'));
         }));
 
-        Q.stageMaps = {'level':'level1','level1':'level2', 'level2':'level3', 'level3':'level1'};
+        Q.stageMaps = {'level':'level1','level1':'level2', 'level2':'level3', 'level3':'level'};
         Q.currentStage = "level";
         Q.stageScene("level");
 

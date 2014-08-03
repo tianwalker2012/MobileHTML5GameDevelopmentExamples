@@ -91,8 +91,8 @@ touchLocation: function(touch) {
         left: 0,
         gutter:10,
         controls: DEFAULT_TOUCH_CONTROLS,
-        width: Q.el.attr('width') || Q.width,
-        bottom: Q.el.attr('height') || Q.height
+        width: Q.width,
+        bottom: Q.height
       }).extend(opts||{});
 
       opts.unit = (opts.width / opts.controls.length);

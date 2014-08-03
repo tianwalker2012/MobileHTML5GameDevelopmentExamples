@@ -13,8 +13,8 @@ Quintus.Input = function(Q) {
   var DEFAULT_TOUCH_CONTROLS  = [ ['left','<' ],
                             ['right','>' ],
                             [],
-                            ['action','b'],
-                            ['fire', 'a' ]];
+                            [],
+                            ['fire', '^' ]];
 
   // Clockwise from midnight (a la CSS)
   var DEFAULT_JOYPAD_INPUTS =  [ 'up','right','down','left'];
@@ -358,7 +358,7 @@ touchLocation: function(touch) {
 
     if(joypad) {
       Q.input.touchControls({
-        controls: [ [],[],[],['action','b'],['fire','a']]
+        controls: [ [],[],[],[],['fire','a']]
       });
       Q.input.joypadControls();
     } else {

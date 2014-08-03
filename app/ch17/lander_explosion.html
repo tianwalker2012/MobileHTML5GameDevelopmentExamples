@@ -95,8 +95,8 @@
           // Force our lander to stay in our box 
           // and zero out our velocity when we hit a wall
           if(p.y < 0) { 
-              Q.currentStage = "level2";
-              Q.stageScene("level2");
+              Q.currentStage = Q.stageMaps[Q.currentStage];
+              Q.stageScene(Q.currentStage);
             }
           if(p.y > Q.height- p.h) { p.y = Q.height - p.h; p.vy = 0; }
           if(p.x < 0) { p.x = 0; p.vx = 0; }
@@ -252,9 +252,10 @@
       });
 
       Q.load(['lander.png','backgroundv1.png', 
-              'lander_thrust.png','mapv1.png','mapv2.png'], function() {
+              'lander_thrust.png','mapv1.png','mapv2.png', 'mapv3.png'], function() {
 
-        Q.scene("level",new Q.Scene(function(stage) {
+
+        Q.scene("level1",new Q.Scene(function(stage) {
           stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
           stage.insert(new Q.Sprite({ asset: "mapv1.png" }));
           debug("innerHeight:"+Q.height+", height:"+Q.innerHeight);
@@ -290,8 +291,27 @@
           ship.imageData = Q.imageData(Q.asset('lander.png'));
         }));
         
-        Q.currentStage = "level";
-        Q.stageScene("level");
+        Q.scene("level3",new Q.Scene(function(stage) {
+          stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
+          stage.insert(new Q.Sprite({ asset: "mapv3.png" }));
+          debug("innerHeight:"+Q.height+", height:"+Q.innerHeight);
+          var ship = stage.insert(new Q.Ship({
+            asset: 'lander.png',
+            x:       30, // X Position
+            y:       Q.height - 50, // Y Position
+            gravity: 20,  // Gravity
+            m:       1,   // Ship’s Mass
+            thrustX: 40,  // Horizontal Thrust
+            thrustY: 80,  // Vertical Thrust    
+          }));
+
+          Q.backgroundPixels = Q.imageData(Q.asset('mapv3.png'));
+          ship.imageData = Q.imageData(Q.asset('lander.png'));
+        }));
+
+        Q.stageMaps = {'level1':'level2', 'level2':'level3', 'level3':'level1'};
+        Q.currentStage = "level1";
+        Q.stageScene("level1");
 
       });
     </script>

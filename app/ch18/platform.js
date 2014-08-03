@@ -74,8 +74,8 @@ $(function() {
         collisionMask: 1,
         touchCount:0,
         stepCount:0,
-        oldTouchSpeed:0,
-        touchSpeed:0,
+        oldStepCount:0,
+        oldTouchCount:0,
         direction: 'right'
       }));
 
@@ -125,6 +125,8 @@ $(function() {
       //this.debugInfo('Total Count:'+ this.p.touchCount+", this.p.vy:"+this.p.vy);
       if(this.p.standing >= 0) {
         this.p.vy = -this.p.speed * 1.4;
+        //this.p.ay = -p.speed;
+        this.p.ay = -p.speed;
         this.p.standing = -1;
       }
     },
@@ -134,28 +136,37 @@ $(function() {
         this.p.standing = 5;
       }
     },
-
-    step: function(dt) {
-      var p = this.p;
+    updateUpSpeed: function(){
       p.stepCount += 1;
       var oldWeight = Math.pow((100 - p.stepCount)/100.0, 2);
       var newWeight = 1 - oldWeight;
-      p.touchSpeed = Math.floor((oldWeight * p.oldTouchSpeed + newWeight*p.touchCount/p.stepCount)*1000);
+      //this.debugInfo('debug info:'+p.touchCount);
+      p.touchSpeed = oldWeight * p.oldTouchCount/p.oldStepCount + newWeight*p.touchCount/p.stepCount;
+      if(p.stepCount > 100){
+          p.oldStepCount = p.stepCount;
+          p.oldTouchCount = p.touchCount;
+          p.stepCount = 1;
+          p.touchCount = 0;
+          //p.touchCount = this.touchSpeed;
+      }
+      if(p.touchCount){
+         //this.debugInfo("stepCount:"+p.stepCount+",speed:"+ p.touchSpeed + ",touchCount:"+p.touchCount);
+     
 
       //this.debugInfo("click speed:"+ p.touchSpeed + ",vy:"+Math.floor(p.vy));
-      if(p.stepCount == 100){
-          p.oldTouchSpeed = p.touchSpeed;
-          p.stepCount = 0;
-          p.touchCount = 0;
-      }
+      
       if(p.stepCount % 20 == 0){
-         this.debugInfo("speed:"+ p.touchSpeed + ",y:"+p.vy + ",impulse:"+Math.floor(p.impulse));
-         p.impulse = -20;
-        if(this.touchSpeed > 100){
-              this.p.vy = this.p.vy - p.speed * (this.touchSpeed - 100) * 20;
+         this.debugInfo("ay"+p.ay+",speed:"+ Math.floor(p.touchSpeed*1000) + ",touchCount:"+p.touchCount);
+         var remains = (this.touchSpeed * 1000 - 100) * 20;
+         if(remains > 0){
+            p.ay = - remains;
+         } 
         }
       }
 
+    },
+    step: function(dt) {
+      var p = this.p;
       if(p.animation == 'fire_right' || p.animation == 'fire_left') {
         if(this.p.standing > 0) {
           this.p.vx = 0;
@@ -169,13 +180,18 @@ $(function() {
         }
         if(Q.inputs['right']) {
           this.play('run_right');
-          p.vx = p.speed;
+          p.ax = p.speed;
           p.direction = 'right';
         } else if(Q.inputs['left']) {
           this.play('run_left');
-          p.vx = -p.speed;
+          p.ax = -p.speed;
           p.direction = 'left';
-        } else {
+        } else if(Q.inputs['action']){
+          //this.play('')
+          debugInfo('setup action');
+          p.ay = -p.speed;
+        }
+         else {
           p.vx = 0;
           this.play('stand_' + p.direction);
         }
@@ -222,12 +238,12 @@ $(function() {
                                                dataAsset: 'level.json', 
                                                z:1 }));
     stage.collisionLayer(tiles);
-    var player = stage.insert(new Q.Player({ x:100, y:0, z:3, sheet: 'man' }));
-
+    var player = stage.insert(new Q.Player({ x:100, y:0, z:3, sheet:'man' }));
+    
     //stage.insert(new Q.Enemy({ x:400, y:0, z:3 }));
     //stage.insert(new Q.Enemy({ x:600, y:0, z:3 }));
     //stage.insert(new Q.Enemy({ x:1200, y:100, z:3 }));
-    stage.insert(new Q.Enemy({ x:1600, y:0, z:3 }));
+    //stage.insert(new Q.Enemy({ x:1600, y:0, z:3 }));
 
     stage.add('viewport');
     stage.follow(player);

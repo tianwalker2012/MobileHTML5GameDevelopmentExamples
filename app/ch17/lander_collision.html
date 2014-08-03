@@ -10,7 +10,10 @@
     <script src='js/quintus_sprites.js'></script>
     <script src='js/quintus_scenes.js'></script>
 
-    <meta name="viewport" content="width=480, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name=apple-mobile-web-app-capable content=yes>
+    <meta name=apple-mobile-web-app-status-bar-style content=black>
+    <!--<meta name="viewport" content="width=480, user-scalable=no"> -->
     <style>
       body { padding:0px; margin:0px; }
       #quintus { background-color:#CCC; }
@@ -37,7 +40,7 @@
           if(Q.inputs['right']) { p.fx += p.thrustX; }
 
           // Set our vertical force
-          if(Q.inputs['fire']) {
+          if(Q.inputs['fire'] || Q.inputs['up']) {
             p.fy = -p.thrustY;
             p.asset = "lander_thrust.png";
             } else {

@@ -10,16 +10,22 @@
     <script src='js/quintus_sprites.js'></script>
     <script src='js/quintus_scenes.js'></script>
 
-    <meta name="viewport" content="width=480, user-scalable=no">
+    <!--<meta name="viewport" content="width=320, user-scalable=no"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name=apple-mobile-web-app-capable content=yes>
+    <meta name=apple-mobile-web-app-status-bar-style content=black>
     <style>
-      body { padding:0px; margin:0px; }
+      body { padding:0px; margin:0px; background-color:#1e7572; }
       #quintus { background-color:#CCC; }
     </style>
   </head>
   <body>
-    <canvas id='quintus' width='480' height='320'></canvas>
-    
+    <canvas id='quintus' width='320' height='480'></canvas>
     <script>
+      function debug(info){
+        var dr = document.getElementById('debug');
+        //dr.innerHTML = info;
+      }
       var Q = Quintus()
               .include("Input,Sprites,Scenes")
               .setup()
@@ -28,24 +34,34 @@
 
       Q.Ship = Q.MovingSprite.extend({
         step: function(dt) {
+          if(Q.inputs['left'] || Q.inputs['right'] || Q.inputs['fire']){
+            this.p.gravity = 20;
+          }
           if(this.dead) return;
           var p = this.p;
-
           // Set our horizontal force
           p.fx = 0;
           if(Q.inputs['left']) { p.fx -= p.thrustX; }
           if(Q.inputs['right']) { p.fx += p.thrustX; }
 
           // Set our vertical force
-          if(Q.inputs['fire']) {
-            p.fy = -p.thrustY;
-            p.asset = "lander_thrust.png";
-            } else {
+
+          if(Q.inputs['fire'] || Q.inputs['up']){
+              console.log('fire clicked');
+              p.fy = -p.thrustY/2.0;
+              p.asset = "lander_thrust.png";
+             }else if(Q.inputs['down']){
+                 p.fy = p.thrustY/4.0;
+                 p.asset = "lander_thrust.png";
+            }else {
+            
+            //I can change the image on the fly. 
             p.fy = 0;
             p.asset = "lander.png";
           }
 
           // Calculate our y and x acceleration
+          //I am have idea of ax and ay.
           p.ay = p.gravity + p.fy / p.m;
           p.ax = p.fx / p.m;
 
@@ -62,15 +78,35 @@
               this.parent.insert(new Q.Explosion(p.x,p.y,p.vx,p.vy,this.imageData));
               this.parent.remove(this);
               this.dead=true;
+              /**
+              this.parent.insert(new Q.Sprite({
+                    asset: 'lander.png',
+                    x:       200, // X Position
+                    y:       170, // Y Position
+                    gravity: 20,  // Gravity
+                    m:       1,   // Ship’s Mass
+                    thrustX: 40,  // Horizontal Thrust
+                    thrustY: 80,  // Vertical Thrust    
+                  }));
+**/
             }
           }
 
           // Force our lander to stay in our box 
           // and zero out our velocity when we hit a wall
-          if(p.y < 0) { p.y = 0;  p.vy = 0; }
+          if(p.y < 0) { 
+              Q.currentStage = "level2";
+              Q.stageScene("level2");
+            }
           if(p.y > Q.height- p.h) { p.y = Q.height - p.h; p.vy = 0; }
           if(p.x < 0) { p.x = 0; p.vx = 0; }
-          if(p.x > Q.width - p.w) { p.x = Q.width - p.w; p.vx = 0; }
+          if(p.x > Q.width - p.w) {
+              //Q.stageScene("level");
+              //Q.currentStage = "level2";
+              //Q.stageScene("level2");
+              p.x = Q.width - p.w;
+              p.vx = 0;
+           }
         },
 
         checkCollision: function() {
@@ -190,7 +226,9 @@
               }
               v.lifetime -= dt;
             }
-            if(v.lifetime <= 0) { Q.stageScene('level'); return; }
+            if(v.lifetime <= 0) { 
+
+              Q.stageScene(Q.currentStage); return; }
           }
 
         },
@@ -213,28 +251,48 @@
         }
       });
 
-      Q.load(['lander.png','background.png', 
-              'lander_thrust.png','map.png'], function() {
+      Q.load(['lander.png','backgroundv1.png', 
+              'lander_thrust.png','mapv1.png','mapv2.png'], function() {
 
         Q.scene("level",new Q.Scene(function(stage) {
-          stage.insert(new Q.Sprite({ asset: "background.png" }));
-          stage.insert(new Q.Sprite({ asset: "map.png" }));
-
+          stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
+          stage.insert(new Q.Sprite({ asset: "mapv1.png" }));
+          debug("innerHeight:"+Q.height+", height:"+Q.innerHeight);
           var ship = stage.insert(new Q.Ship({
             asset: 'lander.png',
-            x:       10, // X Position
-            y:       170, // Y Position
+            x:       151, // X Position
+            y:       Q.height - 50, // Y Position
+            gravity: 0,  // Gravity
+            m:       1,   // Ship’s Mass
+            thrustX: 40,  // Horizontal Thrust
+            thrustY: 80,  // Vertical Thrust    
+          }));
+
+          Q.backgroundPixels = Q.imageData(Q.asset('mapv1.png'));
+          ship.imageData = Q.imageData(Q.asset('lander.png'));
+        }));
+
+        Q.scene("level2",new Q.Scene(function(stage) {
+          stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
+          stage.insert(new Q.Sprite({ asset: "mapv2.png" }));
+          debug("innerHeight:"+Q.height+", height:"+Q.innerHeight);
+          var ship = stage.insert(new Q.Ship({
+            asset: 'lander.png',
+            x:       102, // X Position
+            y:       Q.height - 50, // Y Position
             gravity: 20,  // Gravity
             m:       1,   // Ship’s Mass
             thrustX: 40,  // Horizontal Thrust
             thrustY: 80,  // Vertical Thrust    
           }));
 
-          Q.backgroundPixels = Q.imageData(Q.asset('map.png'));
+          Q.backgroundPixels = Q.imageData(Q.asset('mapv2.png'));
           ship.imageData = Q.imageData(Q.asset('lander.png'));
         }));
-
+        
+        Q.currentStage = "level";
         Q.stageScene("level");
+
       });
     </script>
   </body>

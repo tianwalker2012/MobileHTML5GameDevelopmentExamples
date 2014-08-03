@@ -12,8 +12,8 @@ $(function() {
         color: 'red',
         r: 25,
         restitution: 0.9,
-        density: 4,
-        seconds: 5
+        density: 4
+        //seconds: 5
       }));
       this.add('physics');
     }
@@ -50,6 +50,7 @@ $(function() {
     });
 
     // Add the balls
+    stage.insert(new Q.Ball({ x: 50, y: 50, color:"rgb(128,64,32)" }));
     stage.insert(new Q.Ball({ x: 100, y: 50, color:"blue" }));
     stage.insert(new Q.Ball({ x: 200, y: 50, color:"pink" }));
     stage.insert(new Q.Ball({ x: 300, y: 50, color:"black" }));

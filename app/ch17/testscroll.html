@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Lander</title>
+    <script src='js/jquery.min.js'></script>
+    <script src='js/underscore.js'></script>
+    <script src='js/quintus.js'></script>
+    <script src='js/quintus_input.js'></script>
+    <script src='js/quintus_sprites.js'></script>
+    <script src='js/quintus_scenes.js'></script>
+
+    <!--<meta name="viewport" content="width=320, user-scalable=no"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name=apple-mobile-web-app-capable content=yes>
+    <meta name=apple-mobile-web-app-status-bar-style content=black>
+    <style>
+      body { padding:0px; margin:0px; background-color:#1e7572; }
+      #quintus { background-color:#1e7572; }
+    </style>
+  </head>
+  <body>
+    <canvas id='quintus' width='320' height='480'></canvas>
+    <script>
+      function debug(info){
+        var dr = document.getElementById('debug');
+        //dr.innerHTML = info;
+      }
+
+
+      $(window).resize(function() {
+        console.log('window was resized:'+window.innerHeight);
+        var canvas = document.getElementById('quintus');
+        canvas.height = window.innerHeight;
+        Q.height = window.innerHeight;
+        //Q.InputSystem.drawButtons();
+      });
+
+      
+      
+    </script>
+  </body>
+</html>

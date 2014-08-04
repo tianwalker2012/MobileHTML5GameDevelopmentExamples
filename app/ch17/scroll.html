@@ -38,11 +38,11 @@
 
       var Q = Quintus()
               .include("Input,Sprites,Scenes")
-              .setup()
-
+              .setup();
+ 
       Q.height = window.innerHeight;
       Q.controls();
-      Q.Ship = Q.MovingSprite.extend({
+      Q.Ship = Q.CenterSprite.extend({
         step: function(dt) {
           if(Q.inputs['left'] || Q.inputs['right'] || Q.inputs['fire']){
             this.p.gravity = 20;
@@ -76,6 +76,8 @@
           p.ax = p.fx / p.m;
 
           // Let our super-class update our x and y
+          //console.log("child p.backgorund:"+p.backgorund);
+          console.log("will call super:ay:"+p.ay);
           this._super(dt);
 
           var col;
@@ -88,17 +90,6 @@
               this.parent.insert(new Q.Explosion(p.x,p.y,p.vx,p.vy,this.imageData));
               this.parent.remove(this);
               this.dead=true;
-              /**
-              this.parent.insert(new Q.Sprite({
-                    asset: 'lander.png',
-                    x:       200, // X Position
-                    y:       170, // Y Position
-                    gravity: 20,  // Gravity
-                    m:       1,   // Ship’s Mass
-                    thrustX: 40,  // Horizontal Thrust
-                    thrustY: 80,  // Vertical Thrust    
-                  }));
-**/
             }
           }
 
@@ -111,22 +102,16 @@
           if(p.y > Q.height- p.h) { p.y = Q.height - p.h; p.vy = 0; }
           if(p.x < 0) { p.x = 0; p.vx = 0; }
           if(p.x > Q.width - p.w) {
-              //Q.stageScene("level");
-              //Q.currentStage = "level2";
-              //Q.stageScene("level2");
               p.x = Q.width - p.w;
               p.vx = 0;
            }
         },
-
         checkCollision: function() {
           var bgData = Q.backgroundPixels;
-
           // Get a integer based position from our
           // x and y values
           var bgx = Math.floor(this.p.x);
           var bgy = Math.floor(this.p.y);
-
           // Calculate the initial offset into our background
           var bgOffset = bgx * 4 + bgy * bgData.width * 4 + 3;
 
@@ -261,23 +246,13 @@
         }
       });
 
-      Q.StretchBackground = Q.Sprite.extend({
-        draw: function(ctx) {
-          if(!ctx) { ctx = Q.ctx; }
-          ctx.drawImage(Q.asset(this.asset),
-            this.fx(frame),this.fy(frame),
-            this.tilew, this.tileh,
-            0,0,
-            Q.width, Q.height);
-        }
-      });
-
       Q.load(['lander.png','backgroundv1.png', 
               'lander_thrust.png','easy.png', 'mapv1.png','mapv2.png', 'mapv3.png', 'mapv4.png'], function() {
         Q.height = window.innerHeight;
         console.log('current height is:'+ Q.height);
         Q.scene("level",new Q.Scene(function(stage) {
-          stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
+          var movingBack = new Q.MovingBackground({ asset: "backgroundv1.png" })
+          stage.insert(movingBack);
           stage.insert(new Q.Sprite({ asset: "easy.png" }));
           debug("innerHeight:"+Q.height+", height:"+Q.innerHeight);
           var ship = stage.insert(new Q.Ship({
@@ -287,7 +262,8 @@
             gravity: 0,  // Gravity
             m:       1,   // Ship’s Mass
             thrustX: 40,  // Horizontal Thrust
-            thrustY: 80,  // Vertical Thrust    
+            thrustY: 80,  // Vertical Thrust
+            background: movingBack    
           }));
 
           Q.backgroundPixels = Q.imageData(Q.asset('easy.png'));
@@ -350,19 +326,26 @@
 
 
         Q.scene("level4",new Q.Scene(function(stage) {
-          stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
-          stage.insert(new Q.Sprite({ asset: "mapv4.png" }));
+          //stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
+          //stage.insert(new Q.Sprite({ asset: "mapv4.png" }));
+          var movingBack = new Q.MovingBackground({ asset: "backgroundv1.png" });
+          stage.insert(movingBack);
           debug("innerHeight:"+Q.height+", height:"+Q.innerHeight);
           var ship = stage.insert(new Q.Ship({
             asset: 'lander.png',
             x:       145, // X Position
             y:       (Q.height - 50)/2.0, // Y Position
-            gravity: 0,  // Gravity
+            gravity: 20,  // Gravity
             m:       1,   // Ship’s Mass
             thrustX: 40,  // Horizontal Thrust
             thrustY: 80,  // Vertical Thrust    
+            //background: movingBack,
+            movedX: 0,
+            movedY: 0
           }));
-
+          movingBack.p.leader = ship;
+          //ship.p.background = movingBack;
+          console.log('ship.p.background:'+ ship.p.background+", movingBack:"+movingBack+", initial movedY:"+ship.p.movedY);
           Q.backgroundPixels = Q.imageData(Q.asset('mapv4.png'));
           ship.imageData = Q.imageData(Q.asset('lander.png'));
         }));
@@ -376,4 +359,3 @@
     </script>
   </body>
 </html>
-

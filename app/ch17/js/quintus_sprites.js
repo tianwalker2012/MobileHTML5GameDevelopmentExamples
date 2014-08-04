@@ -139,7 +139,88 @@ Quintus.Sprites = function(Q) {
       }
     });
 
+  Q.CenterSprite = Q.Sprite.extend({
+    init: function(props) {
+      this._super(_({
+        vx: 0,
+        vy: 0,
+        ax: 0,
+        ay: 0,
+        movedY:0,
+        movedX:0
+        }).extend(props));
+      },
 
+      step: function(dt) {
+        this._super(dt);
+        var p = this.p;
+        p.vx += p.ax * dt;
+        p.vy += p.ay * dt;
+        p.movedX += p.vx * dt;
+        p.movedY += p.vy * dt;
+        //if(p.background){
+        //   p.background.p.movedX = p.movedX;
+        //   p.background.p.movedY = p.movedY; 
+        //}
+        //console.log("moved y:"+Math.floor(p.movedY)+" vy:"+p.vy+", ay:"+p.ay+", dt:"+dt);
+        //this._super(dt);
+      }
+    });
+
+  Q.MovingBackground = Q.Sprite.extend({
+    init: function(props) {
+      this._super(_({
+          movedX:0,
+          movedY:0
+        }).extend(props));
+      },
+
+     step: function(dt) {
+        //do nothing.
+        console.log("background dt:"+dt);
+      },
+
+     drawold:function(ctx){
+        //console.log('super draw');
+        //this.trigger('draw', ctx);
+        console.log("leader:"+this.p.leader);
+        this._super(ctx);
+     },
+     draw: function(ctx) {
+      if(!ctx) { ctx = Q.ctx; }
+      var p = this.p;
+      //if(p.sheet) {
+      //  this.sheet().draw(ctx, p.x, p.y, p.frame);
+      //} else if(p.asset) {
+      var curMovedY = -p.leader.p.movedY;
+      var image =  Q.asset(p.asset);
+      var imageHeight = image.height;
+      var yGap = curMovedY % imageHeight;
+      //var yViewGap = yFi
+      if(yGap > 0){
+          var sourcePos = imageHeight - yGap;
+          var sourceLength = yGap - p.h;
+          if(sourceLength >= 0){
+            ctx.drawImage(image, 0, sourcePos, p.w, p.h, p.x, p.y, p.w, p.h);
+          }else{
+            ctx.drawImage(image, 0, sourcePos, p.w, yGap, p.x, p.y, p.w, yGap);
+            ctx.drawImage(image, 0, 0, p.w, p.h - yGap, p.x, p.y + yGap, p.w, p.h - yGap);
+          } 
+      }else{
+          var upGoing = Math.abs(yGap);
+          var remain =p.h - (imageHeight - upGoing);
+          //console.log("remain:"+remain+",movedY:"+curMovedY+", gap:"+yGap+", imageHeight:"+imageHeight+"sx:"+p.sx+",h:"+p.h+",");
+     
+          if(remain <= 0){
+            ctx.drawImage(image, 0, upGoing, p.w, p.h, p.x, p.y, p.w, p.h);
+          }else{
+            ctx.drawImage(image, 0, upGoing, p.w, (imageHeight - upGoing),p.x, p.y, p.w, (imageHeight - upGoing));
+            ctx.drawImage(image, 0, 0, p.w, remain, p.x,p.y +(imageHeight - upGoing), p.w, remain);
+          }
+      }
+      //this.trigger('draw',ctx);
+    }
+    });
 
 
   return Q;

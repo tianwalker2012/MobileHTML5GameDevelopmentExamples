@@ -138,7 +138,7 @@ var Quintus = function(opts) {
     Q.gameLoopCallbackWrapper = function(now) {
       Q.loop = requestAnimationFrame(Q.gameLoopCallbackWrapper);
       var dt = now - Q.lastGameLoopFrame;
-      if(dt > 100) { dt = 100; }
+      if(dt > 100 || dt < 0) { dt = 100; }
       callback.apply(Q,[dt / 1000]);  
       Q.lastGameLoopFrame = now;
     };

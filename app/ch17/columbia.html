@@ -273,7 +273,7 @@
       });
 
       Q.load(['lander.png','backgroundv1.png', 
-              'lander_thrust.png','easy.png', 'mapv1.png','mapv2.png', 'mapv3.png'], function() {
+              'lander_thrust.png','easy.png', 'mapv1.png','mapv2.png', 'mapv3.png', 'mapv4.png'], function() {
         Q.height = window.innerHeight;
         console.log('current height is:'+ Q.height);
         Q.scene("level",new Q.Scene(function(stage) {
@@ -348,9 +348,29 @@
           ship.imageData = Q.imageData(Q.asset('lander.png'));
         }));
 
-        Q.stageMaps = {'level':'level1','level1':'level2', 'level2':'level3', 'level3':'level'};
-        Q.currentStage = "level";
-        Q.stageScene("level");
+
+        Q.scene("level4",new Q.Scene(function(stage) {
+          stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
+          stage.insert(new Q.Sprite({ asset: "mapv4.png" }));
+          debug("innerHeight:"+Q.height+", height:"+Q.innerHeight);
+          var ship = stage.insert(new Q.Ship({
+            asset: 'lander.png',
+            x:       170, // X Position
+            y:       Q.height - 50, // Y Position
+            gravity: 20,  // Gravity
+            m:       1,   // Ship’s Mass
+            thrustX: 40,  // Horizontal Thrust
+            thrustY: 80,  // Vertical Thrust    
+          }));
+
+          Q.backgroundPixels = Q.imageData(Q.asset('mapv4.png'));
+          ship.imageData = Q.imageData(Q.asset('lander.png'));
+        }));
+
+
+        Q.stageMaps = {'level':'level1','level1':'level2', 'level2':'level3', 'level3':'level4',"level4":"level"};
+        Q.currentStage = "level4";
+        Q.stageScene("level4");
 
       });
     </script>

@@ -28,6 +28,24 @@
       }
 
 
+      
+
+      var Q = Quintus()
+              .include("Input,Sprites,Scenes")
+              .setup();
+ 
+      Q.followOverlap = function(o1,o2) {
+
+            var collided =  !((o1.p.movedY+o1.p.h-1<o2.p.movedY) || (o1.p.movedY>o2.p.movedY+o2.p.h-1) ||
+             (o1.p.x+o1.p.w-1<o2.p.x) || (o1.p.x>o2.p.x+o2.p.w-1));
+            if(collided){
+              console.log("1y:"+o1.p.movedY+",1h:"+o1.p.h+",2y:"+o2.p.movedY+",2h:"+o2.p.h);
+            }
+            return collided;
+      };
+      Q.height = window.innerHeight;
+      Q.controls();
+
       $(window).resize(function() {
         console.log('window was resized:'+window.innerHeight);
         var canvas = document.getElementById('quintus');
@@ -36,12 +54,6 @@
         //Q.InputSystem.drawButtons();
       });
 
-      var Q = Quintus()
-              .include("Input,Sprites,Scenes")
-              .setup();
- 
-      Q.height = window.innerHeight;
-      Q.controls();
       Q.Ship = Q.CenterSprite.extend({
         step: function(dt) {
           if(Q.inputs['left'] || Q.inputs['right'] || Q.inputs['fire']){
@@ -57,7 +69,7 @@
           // Set our vertical force
 
           if(Q.inputs['fire'] || Q.inputs['up']){
-              console.log('fire clicked');
+              //console.log('fire clicked');
               p.fy = -p.thrustY/2.0;
               p.asset = "lander_thrust.png";
              }else if(Q.inputs['down']){
@@ -68,25 +80,26 @@
             //I can change the image on the fly. 
             p.fy = 0;
             p.asset = "lander.png";
-          }
+           }
 
           // Calculate our y and x acceleration
           //I am have idea of ax and ay.
           p.ay = p.gravity + p.fy / p.m;
           p.ax = p.fx / p.m;
-
+          
           // Let our super-class update our x and y
           //console.log("child p.backgorund:"+p.backgorund);
-          console.log("will call super:ay:"+p.ay);
+          //console.log("will call super:ay:"+p.ay);
           this._super(dt);
 
           var col;
           if(col = this.checkCollision()) {
-            if(col == 1 && Math.abs(p.vy) < 30) {
-              if(p.vy > 0) { 
-                p.vy = 0;
-              }
-            } else {
+            if(col == 1) {
+              //&& Math.abs(p.vy) < 30
+              //if(p.vy > 0) { 
+              //  p.vy = 0;
+              //}
+            } else if(col == 2){
               this.parent.insert(new Q.Explosion(p.x,p.y,p.vx,p.vy,this.imageData));
               this.parent.remove(this);
               this.dead=true;
@@ -106,7 +119,17 @@
               p.vx = 0;
            }
         },
-        checkCollision: function() {
+        checkCollision: function(){
+          for(var pos =0; pos < Q.collides.length; pos ++){
+            if(Q.followOverlap(this, Q.collides[pos])){
+              console.log('detect collision');
+              return 2;
+            }
+          }
+          console.log('not collided');
+          return 1;
+        },
+        checkCollisionOld: function() {
           var bgData = Q.backgroundPixels;
           // Get a integer based position from our
           // x and y values
@@ -247,7 +270,7 @@
       });
 
       Q.load(['lander.png','backgroundv1.png', 
-              'lander_thrust.png','easy.png', 'mapv1.png','mapv2.png', 'mapv3.png', 'mapv4.png'], function() {
+              'lander_thrust.png','easy.png','brick1.png', 'mapv1.png','mapv2.png', 'mapv3.png', 'mapv4.png'], function() {
         Q.height = window.innerHeight;
         console.log('current height is:'+ Q.height);
         Q.scene("level",new Q.Scene(function(stage) {
@@ -330,6 +353,13 @@
           //stage.insert(new Q.Sprite({ asset: "mapv4.png" }));
           var movingBack = new Q.MovingBackground({ asset: "backgroundv1.png" });
           stage.insert(movingBack);
+
+          var ground = new Q.StaticFollowSprite({asset:"brick1.png", x:100, y:0, movedY:40, movedX:100});
+
+          var collid1 = new Q.StaticFollowSprite({asset:"brick1.png", x:100, y:0, movedY:-600, movedX:100});
+          Q.collides = [collid1];
+          stage.insert(ground);
+          stage.insert(collid1);
           debug("innerHeight:"+Q.height+", height:"+Q.innerHeight);
           var ship = stage.insert(new Q.Ship({
             asset: 'lander.png',
@@ -343,7 +373,7 @@
             movedX: 0,
             movedY: 0
           }));
-          movingBack.p.leader = ship;
+          Q.leader = ship;
           //ship.p.background = movingBack;
           console.log('ship.p.background:'+ ship.p.background+", movingBack:"+movingBack+", initial movedY:"+ship.p.movedY);
           Q.backgroundPixels = Q.imageData(Q.asset('mapv4.png'));

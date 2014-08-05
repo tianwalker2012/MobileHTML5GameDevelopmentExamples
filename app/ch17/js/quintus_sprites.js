@@ -139,6 +139,30 @@ Quintus.Sprites = function(Q) {
       }
     });
 
+  Q.StaticFollowSprite = Q.Sprite.extend({
+    init: function(props) {
+      this._super(_({
+        movedY:0,
+        movedX:0,
+        visibleW:Q.width,
+        visibleH:Q.height
+        }).extend(props));
+      },
+      step: function(dt) {
+        //this._super(dt);
+        this._super(dt);
+      },
+      draw: function(ctx) {
+        var gapY = Math.abs(Q.leader.p.movedY - this.p.movedY);
+        var gapX = Math.abs(Q.leader.p.movedX - this.p.movedX);
+        //console.log('show icon:'+gapX+", gapY:"+gapY);
+        if(gapX < this.p.visibleW && gapY < this.p.visibleH){
+           this.p.y = Q.leader.p.y + (this.p.movedY - Q.leader.p.movedY);
+           this._super(ctx);
+        }
+      }
+    });
+
   Q.CenterSprite = Q.Sprite.extend({
     init: function(props) {
       this._super(_({
@@ -147,17 +171,31 @@ Quintus.Sprites = function(Q) {
         ax: 0,
         ay: 0,
         movedY:0,
-        movedX:0
+        movedX:0,
+        stationY:0,
+        stationX:0
         }).extend(props));
       },
 
       step: function(dt) {
         this._super(dt);
         var p = this.p;
+        if(p.movedY > p.stationY && p.vy > 0){
+          console.log('movedY:'+p.movedY+", ay:"+p.ay+", vy:"+p.vy);
+          p.vy = -p.vy * 0.3;
+        }
         p.vx += p.ax * dt;
         p.vy += p.ay * dt;
         p.movedX += p.vx * dt;
         p.movedY += p.vy * dt;
+        p.x = p.movedX;
+        if(Math.abs(p.vy) < 0.3 && Math.abs(p.movedY - p.stationY) < 2){
+          p.movedY = p.stationY;
+        }
+        //if(p.movedY > 0 && p.ay > 0){
+          //p.movedY = 0;
+          //p.ay = -p.ay;
+        //}
         //if(p.background){
         //   p.background.p.movedX = p.movedX;
         //   p.background.p.movedY = p.movedY; 
@@ -167,6 +205,17 @@ Quintus.Sprites = function(Q) {
       }
     });
 
+  Q.StepLogic = Q.Sprite.extend({
+    init:function(props){
+      this._super(_({}).extend(props));
+    },
+    step:function(dt){
+
+    },
+    draw:function(ctx){
+
+    }
+  });
   Q.MovingBackground = Q.Sprite.extend({
     init: function(props) {
       this._super(_({
@@ -177,7 +226,7 @@ Quintus.Sprites = function(Q) {
 
      step: function(dt) {
         //do nothing.
-        console.log("background dt:"+dt);
+        //console.log("background dt:"+dt);
       },
 
      drawold:function(ctx){
@@ -192,11 +241,10 @@ Quintus.Sprites = function(Q) {
       //if(p.sheet) {
       //  this.sheet().draw(ctx, p.x, p.y, p.frame);
       //} else if(p.asset) {
-      var curMovedY = -p.leader.p.movedY;
+      var curMovedY = -Q.leader.p.movedY;
       var image =  Q.asset(p.asset);
       var imageHeight = image.height;
       var yGap = curMovedY % imageHeight;
-      //var yViewGap = yFi
       if(yGap > 0){
           var sourcePos = imageHeight - yGap;
           var sourceLength = yGap - p.h;
@@ -208,9 +256,7 @@ Quintus.Sprites = function(Q) {
           } 
       }else{
           var upGoing = Math.abs(yGap);
-          var remain =p.h - (imageHeight - upGoing);
-          //console.log("remain:"+remain+",movedY:"+curMovedY+", gap:"+yGap+", imageHeight:"+imageHeight+"sx:"+p.sx+",h:"+p.h+",");
-     
+          var remain =p.h - (imageHeight - upGoing); 
           if(remain <= 0){
             ctx.drawImage(image, 0, upGoing, p.w, p.h, p.x, p.y, p.w, p.h);
           }else{

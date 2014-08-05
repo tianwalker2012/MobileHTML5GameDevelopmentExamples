@@ -268,6 +268,7 @@
       Q.load(['chars.png','sprites.json','level.json','lander.png','star_back.png','backgroundv1.png', 
               'lander_thrust.png','easy.png','brick1.png', 'mapv1.png','mapv2.png', 'mapv3.png', 'mapv4.png'], function() {
         Q.height = window.innerHeight;
+       /**
         Q.compileSheets('chars.png','sprites.json');
         Q.animations('player', {
         run_right: { frames: _.range(7,-1,-1), rate: 1/15}, 
@@ -284,6 +285,7 @@
         run_right: { frames: _.range(0,2), rate: 1/5 },
         run_left: { frames: _.range(2,4), rate: 1/5 }
       });
+**/
         console.log('current height is:'+ Q.height);
         Q.scene("level",new Q.Scene(function(stage) {
           var movingBack = new Q.MovingBackground({ asset: "backgroundv1.png" })
@@ -365,14 +367,14 @@
           //stage.insert(new Q.Sprite({ asset: "mapv4.png" }));
           var movingBack = new Q.MovingBackground({ asset: "star_back.png" });
           stage.insert(movingBack);
-          var addMan = new Q.StaticFollowSprite({ x:0, y:0, z:3, sheet:'man', movedY:-800, movedX:100});
+          //var addMan = new Q.StaticFollowSprite({ x:0, y:0, z:3, sheet:'man', movedY:-800, movedX:100});
           var ground = new Q.StaticFollowSprite({asset:"brick1.png", x:100, y:0, movedY:35, movedX:100});
 
           var collid1 = new Q.StaticFollowSprite({asset:"brick1.png", x:100, y:0, movedY:-600, movedX:100});
           Q.collides = [collid1];
           stage.insert(ground);
           stage.insert(collid1);
-          stage.insert(addMan);
+          //stage.insert(addMan);
           debug("innerHeight:"+Q.height+", height:"+Q.innerHeight);
           var ship = stage.insert(new Q.Ship({
             asset: 'lander.png',

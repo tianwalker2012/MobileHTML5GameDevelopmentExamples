@@ -157,6 +157,7 @@ Quintus.Sprites = function(Q) {
         var gapX = Math.abs(Q.leader.p.movedX - this.p.movedX);
         //console.log('show icon:'+gapX+", gapY:"+gapY);
         if(gapX < this.p.visibleW && gapY < this.p.visibleH){
+           //this.play('run_left');
            this.p.y = Q.leader.p.y + (this.p.movedY - Q.leader.p.movedY);
            this._super(ctx);
         }

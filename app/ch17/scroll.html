@@ -26,16 +26,11 @@
         var dr = document.getElementById('debug');
         //dr.innerHTML = info;
       }
-
-
-      
-
       var Q = Quintus()
               .include("Input,Sprites,Scenes")
               .setup();
  
       Q.followOverlap = function(o1,o2) {
-
             var collided =  !((o1.p.movedY+o1.p.h-1<o2.p.movedY) || (o1.p.movedY>o2.p.movedY+o2.p.h-1) ||
              (o1.p.x+o1.p.w-1<o2.p.x) || (o1.p.x>o2.p.x+o2.p.w-1));
             if(collided){
@@ -269,7 +264,7 @@
         }
       });
 
-      Q.load(['lander.png','backgroundv1.png', 
+      Q.load(['lander.png','star_back.png','backgroundv1.png', 
               'lander_thrust.png','easy.png','brick1.png', 'mapv1.png','mapv2.png', 'mapv3.png', 'mapv4.png'], function() {
         Q.height = window.innerHeight;
         console.log('current height is:'+ Q.height);
@@ -351,10 +346,10 @@
         Q.scene("level4",new Q.Scene(function(stage) {
           //stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
           //stage.insert(new Q.Sprite({ asset: "mapv4.png" }));
-          var movingBack = new Q.MovingBackground({ asset: "backgroundv1.png" });
+          var movingBack = new Q.MovingBackground({ asset: "star_back.png" });
           stage.insert(movingBack);
 
-          var ground = new Q.StaticFollowSprite({asset:"brick1.png", x:100, y:0, movedY:40, movedX:100});
+          var ground = new Q.StaticFollowSprite({asset:"brick1.png", x:100, y:0, movedY:35, movedX:100});
 
           var collid1 = new Q.StaticFollowSprite({asset:"brick1.png", x:100, y:0, movedY:-600, movedX:100});
           Q.collides = [collid1];

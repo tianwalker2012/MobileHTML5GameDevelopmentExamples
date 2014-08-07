@@ -350,7 +350,7 @@ Q.StarSprite = Q.Sprite.extend({
           p.y +=curMovedY; 
           if(p.y + p.h > Q.height){
             p.y = Q.height - p.h;
-            console.log("vy is:"+p.vy);
+            //console.log("vy is:"+p.vy);
             if(p.vy > 100){
               this.p.isCrashed = true;
             }else{

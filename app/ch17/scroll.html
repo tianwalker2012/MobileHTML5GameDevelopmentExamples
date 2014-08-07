@@ -7,7 +7,7 @@
     <script src='js/underscore.js'></script>
     <script src='js/quintus.js'></script>
     <script src='js/quintus_input.js'></script>
-    <script src='js/quintus_sprites.js?1'></script>
+    <script src='js/quintus_sprites.js?3'></script>
     <script src='js/quintus_scenes.js'></script>
     <script src='js/quintus_anim.js'></script>
 
@@ -31,7 +31,7 @@
       var Q = Quintus()
               .include("Input,Sprites,Scenes,Anim")
               .setup();
- 
+      Q.resizeListeners = [];
       Q.followOverlap = function(o1,o2) {
             var collided =  !((o1.p.movedY+o1.p.h-1<o2.p.movedY) || (o1.p.movedY>o2.p.movedY+o2.p.h-1) ||
              (o1.p.x+o1.p.w-1<o2.p.x) || (o1.p.x>o2.p.x+o2.p.w-1));
@@ -44,10 +44,14 @@
       Q.controls();
 
       $(window).resize(function() {
-        console.log('window was resized:'+window.innerHeight);
+        //console.log('window was resized:'+window.innerHeight);
         var canvas = document.getElementById('quintus');
         canvas.height = window.innerHeight;
         Q.height = window.innerHeight;
+        console.log('resize inner height:'+window.innerHeight+", Q height:"+Q.height+",canvas height:"+canvas.height);
+        for(var i = 0; i <　Q.resizeListeners.length; i++){
+          Q.resizeListeners[i]({width:window.innerWidth, height:window.innerHeight});
+        }
         //Q.InputSystem.drawButtons();
       });
 
@@ -338,9 +342,13 @@
         }
       });
 
-      Q.load(['chars.png','sprites.json','cloud1.png','cloud2.png', 'cloud3.png','stone1.png', 'bottom.png','ball.png','level.json','lander.png','star_back.png','backgroundv1.png', 
+      Q.load(['plane.png','cloud1.png','cloud2.png', 'cloud3.png','stone1.png', 'bottom.png','ball.png','level.json','lander.png','star_back.png','backgroundv1.png', 
               'lander_thrust.png','easy.png','brick1.png', 'mapv1.png','mapv2.png', 'mapv3.png', 'mapv4.png'], function() {
+        //Q.el.height = window.innerHeight;
+        var canvas = document.getElementById('quintus');
+        canvas.height = window.innerHeight;
         Q.height = window.innerHeight;
+        console.log('initial inner height:'+window.innerHeight+", Q height:"+Q.height+",canvas height:"+canvas.height);
        /**
         Q.compileSheets('chars.png','sprites.json');
         Q.animations('player', {
@@ -378,13 +386,16 @@
                 if(!this.p.forkedPlane){
                   this.p.forkedPlane = true;
                   this.p.stepCount = Q.leader.p.stepCount;
-                  var plane = new Q.StaticFollowSprite({asset:"plane.png", x:Math.random()*(Q.width-80), y:0, movedY:-20000, movedX:100});
+                  var plane = new Q.StaticFollowSprite({asset:"plane.png", x:Math.random()*(Q.width-120), y:0, movedY:-Q.endHeight-100, movedX:100});
                   this.parent.insert(plane);
-                  Q.leader.p.vy = 30;
+                  //Q.leader.p.vy = -30;
                 }else{
-                  //Q.leader.p.vy > 30;
-                  Q.leader.p.vy =30;
+                  Q.leader.p.vy = Q.leader.p.vy * 0.99;
+                  if(Q.leader.p.vy > -30){
+                    Q.leader.p.vy =-30;
+                  }
                   if(height > Q.endHeight){
+                     //Q.leader.p.vy =
                      Q.pauseGame(); 
                   }
                 }
@@ -410,12 +421,20 @@
           //stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
           //stage.insert(new Q.Sprite({ asset: "mapv4.png" }));
           //var movingBack = new Q.MovingBackground({ asset: "star_back.png" });
-          var targetHeight = 20000;
+          var targetHeight = 10000;
           var starBack = new Q.StarSprite({}); 
           stage.insert(starBack);
 
           //var addMan = new Q.StaticFollowSprite({ x:0, y:0, z:3, sheet:'man', movedY:-800, movedX:100});
-          var ground = new Q.StaticFollowSprite({asset:"bottom.png", x:0, y:Q.height-180, movedY:35, movedX:0, removePassed:false});
+          var ground = new Q.StaticFollowSprite({asset:"bottom.png", x:0, y:180, movedY:35, movedX:0, removePassed:false});
+
+          Q.resizeListeners.push(function(changed){
+              //ground.p.movedY = 
+              console.log('size changed:'+changed.height);
+              ground.p.y = changed.height - ground.p.h;
+              var gap = ground.p.y - Q.leader.p.centerY;
+              ground.p.movedY = gap;
+          });
 
           var logic = new Q.StepLogic({});
           //var staticBall = new Q.StaticFollowSprite({asset:'ball.png', x:200, y:30, movedY:40, movedX:120, removePassed:true});
@@ -423,10 +442,10 @@
           //console.log('loaded ball width:'+staticBall.p.w+', ground:'+ground.p.w);
           Q.titleScreen = new Q.TitleScreen({title:'目标高度:'+targetHeight, z:0});
           
-          var collid1 = new Q.ResistSprite({asset:"cloud1.png", x:Math.random()*(Q.width-80), y:0, movedY:-1000, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          var collid1 = new Q.ResistSprite({asset:"cloud2.png", x:Math.random()*(Q.width-80), y:0, movedY:-1000, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
           stage.insert(collid1);
 
-          var collid1 = new Q.ResistSprite({asset:"cloud2.png", x:Math.random()*(Q.width-80), y:0, movedY:-1500, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          var collid1 = new Q.ResistSprite({asset:"cloud1.png", x:Math.random()*(Q.width-80), y:0, movedY:-1500, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
           stage.insert(collid1);
 
           var collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-2000, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
@@ -434,18 +453,6 @@
 
           var collid1 = new Q.ResistSprite({asset:"cloud2.png", x:Math.random()*(Q.width-80), y:0, movedY:-2500, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
           stage.insert(collid1);
-
-          //var crash = new Q.ResistSprite({asset:"stone1.png", x:Math.random()*(Q.width-60), y:0, movedY:-600, movedX:100, isResist:false});
-          //stage.insert(crash);
-
-          //var crash2 = new Q.ResistSprite({asset:"stone1.png", x:Math.random()*(Q.width-60), y:0, movedY:-300, movedX:100, isResist:false});
-          //stage.insert(crash2);
-
-          //var crash3 = new Q.ResistSprite({asset:"stone1.png", x:Math.random()*(Q.width-60), y:0, movedY:-100, movedX:100, isResist:false});
-          //stage.insert(crash2);
-
-          //var plane = new Q.StaticFollowSprite({asset:"plane.png", x:Math.random()*(Q.width-80), y:0, movedY:-20000, movedX:100});
-          //stage.add(plane);
           
           stage.insert(ground);
           //stage.insert(staticBall);
@@ -476,7 +483,17 @@
           //console.log('ship.p.background:'+ ship.p.background+", movingBack:"+movingBack+", initial movedY:"+ship.p.movedY);
           Q.backgroundPixels = Q.imageData(Q.asset('mapv4.png'));
           ship.imageData = Q.imageData(Q.asset('ball.png'));
+          
+          //Set the bottom to ship distance
+          //var gap = ship.p.y - ground.p.y;
+          //ground.p.movedY = -gap; 
+          console.log('size changed:'+window.innerHeight);
+          ground.p.y = window.innerHeight - ground.p.h;
+          var gap = ground.p.y - Q.leader.p.centerY;
+          ground.p.movedY = gap;
         }));
+        
+
 
 
         //Q.stageMaps = {'level':'level1','level1':'level2', 'level2':'level3', 'level3':'level4',"level4":"level"};

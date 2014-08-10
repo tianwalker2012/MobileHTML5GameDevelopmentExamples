@@ -294,6 +294,7 @@ touchLocation: function(touch) {
 
           ctx.fillStyle = keypad.color || "#FFFFFF";
           ctx.globalAlpha = key ? 1.0 : 0.5;
+          //ctx.beginPath();
           ctx.fillRect(x,y,keypad.size,keypad.size);
 
           ctx.fillStyle = keypad.text || "#000000";

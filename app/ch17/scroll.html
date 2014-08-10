@@ -36,9 +36,10 @@
         }
         return 1;
       }
-      var currentRatio = backingScale();
+      //var currentRatio = backingScale();
 
       function enhanceContext(canvas, context) {
+        /**
           var ratio = window.devicePixelRatio || 1,
           width = canvas.width,
           height = canvas.height;
@@ -50,6 +51,7 @@
                canvas.style.height = height + "px";
                context.scale(ratio, ratio);
           }
+          **/
       }
 
       var Q = Quintus()
@@ -65,7 +67,7 @@
             return collided;
       };
       Q.height = window.innerHeight;
-      //Q.controls(Q);
+      Q.controls(Q);
 
       $(window).resize(function() {
         //console.log('window was resized:'+window.innerHeight);

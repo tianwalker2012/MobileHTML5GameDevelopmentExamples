@@ -105,7 +105,7 @@ var Quintus = function(opts) {
   };
   if(opts) { _(Q.options).extend(opts); }
 
-
+  Q.pixelRatio = window.devicePixelRatio || 1;
   Q._normalizeArg = function(arg) {
     if(_.isString(arg)) {
       arg = arg.replace(/\s+/g,'').split(",");
@@ -314,14 +314,14 @@ var Quintus = function(opts) {
     if(options.maximize) {
       $("html, body").css({ padding:0, margin: 0 });
       var w = Math.min(window.innerWidth,maxWidth);
-      var h = Math.min(window.innerHeight - 5,maxHeight)
+      var h = Math.min(window.innerHeight,maxHeight)
 
       if(touchDevice) {
         Q.el.css({height: h * 2});
         window.scrollTo(0,1);
 
         w = Math.min(window.innerWidth,maxWidth);
-        h = Math.min(window.innerHeight - 5,maxHeight);
+        h = Math.min(window.innerHeight,maxHeight);
       }
 
       if(((resampleWidth && w > resampleWidth) ||

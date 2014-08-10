@@ -2,12 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Lander</title>
+    <title>哥伦比亚升空计划</title>
     <script src='js/jquery.min.js'></script>
     <script src='js/underscore.js'></script>
-    <script src='js/quintus.js'></script>
+    <script src='js/quintus.js?2'></script>
     <script src='js/quintus_input.js'></script>
-    <script src='js/quintus_sprites.js?3'></script>
+    <script src='js/quintus_sprites.js?4'></script>
     <script src='js/quintus_scenes.js'></script>
     <script src='js/quintus_anim.js'></script>
 
@@ -21,13 +21,37 @@
     </style>
   </head>
   <body>
-    <div></div>
+    <div id='debug'></div>
     <canvas id='quintus' width='320' height='480'></canvas>
     <script>
       function debug(info){
         var dr = document.getElementById('debug');
         //dr.innerHTML = info;
       }
+      function backingScale() {
+        if ('devicePixelRatio' in window) {
+              if (window.devicePixelRatio > 1) {
+                  return window.devicePixelRatio;
+              }
+        }
+        return 1;
+      }
+      var currentRatio = backingScale();
+
+      function enhanceContext(canvas, context) {
+          var ratio = window.devicePixelRatio || 1,
+          width = canvas.width,
+          height = canvas.height;
+          console.log('resolution ratio:'+ratio);
+          if (ratio > 1) {
+               canvas.width = width * ratio;
+               canvas.height = height * ratio;
+               canvas.style.width = width + "px";
+               canvas.style.height = height + "px";
+               context.scale(ratio, ratio);
+          }
+      }
+
       var Q = Quintus()
               .include("Input,Sprites,Scenes,Anim")
               .setup();
@@ -41,13 +65,14 @@
             return collided;
       };
       Q.height = window.innerHeight;
-      Q.controls();
+      //Q.controls(Q);
 
       $(window).resize(function() {
         //console.log('window was resized:'+window.innerHeight);
         var canvas = document.getElementById('quintus');
         canvas.height = window.innerHeight;
         Q.height = window.innerHeight;
+        enhanceContext(canvas, Q.ctx);
         console.log('resize inner height:'+window.innerHeight+", Q height:"+Q.height+",canvas height:"+canvas.height);
         for(var i = 0; i <　Q.resizeListeners.length; i++){
           Q.resizeListeners[i]({width:window.innerWidth, height:window.innerHeight});
@@ -342,12 +367,12 @@
         }
       });
 
-      Q.load(['plane.png','cloud1.png','cloud2.png', 'cloud3.png','stone1.png', 'bottom.png','ball.png','level.json','lander.png','star_back.png','backgroundv1.png', 
-              'lander_thrust.png','easy.png','brick1.png', 'mapv1.png','mapv2.png', 'mapv3.png', 'mapv4.png'], function() {
+      Q.load(['plane.png','cloud1.png','cloud2.png', 'cloud3.png','stone1.png', 'bottom.png','ball2x.png','level.json','lander.png','star_back.png','backgroundv1.png','easy.png','brick1.png', 'mapv1.png','mapv2.png', 'mapv3.png', 'mapv4.png'], function() {
         //Q.el.height = window.innerHeight;
         var canvas = document.getElementById('quintus');
         canvas.height = window.innerHeight;
         Q.height = window.innerHeight;
+        enhanceContext(canvas, Q.ctx);
         console.log('initial inner height:'+window.innerHeight+", Q height:"+Q.height+",canvas height:"+canvas.height);
        /**
         Q.compileSheets('chars.png','sprites.json');
@@ -461,9 +486,9 @@
           //stage.insert(addMan);
           debug("innerHeight:"+Q.height+", height:"+Q.innerHeight);
           var ship = stage.insert(new Q.Ship({
-            asset: 'ball.png',
-            normalStateImage:'ball.png',
-            thrustStateImage:'ball.png',
+            asset: 'ball2x.png',
+            normalStateImage:'ball2x.png',
+            thrustStateImage:'ball2x.png',
             x:       145, // X Position
             y:       (Q.height)/2.0, // Y Position
             centerY: (Q.height)/2.0,
@@ -482,7 +507,7 @@
           //ship.p.background = movingBack;
           //console.log('ship.p.background:'+ ship.p.background+", movingBack:"+movingBack+", initial movedY:"+ship.p.movedY);
           Q.backgroundPixels = Q.imageData(Q.asset('mapv4.png'));
-          ship.imageData = Q.imageData(Q.asset('ball.png'));
+          ship.imageData = Q.imageData(Q.asset('ball2x.png'));
           
           //Set the bottom to ship distance
           //var gap = ship.p.y - ground.p.y;

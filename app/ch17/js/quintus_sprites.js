@@ -105,8 +105,13 @@ Quintus.Sprites = function(Q) {
         this.sheet().draw(ctx, p.x, p.y, p.frame);
       } else if(p.asset) {
         ctx.drawImage(Q.asset(p.asset), 
-        Math.floor(p.x), 
-        Math.floor(p.y));
+        0, 
+        0,
+        p.w, p.h, 
+        p.x, p.y,
+        p.w/Q.pixelRatio,
+        p.h/Q.pixelRatio
+        );
       }
       this.trigger('draw',ctx);
     },

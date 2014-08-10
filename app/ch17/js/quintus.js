@@ -386,6 +386,12 @@ var Quintus = function(opts) {
     var img = new Image();
     $(img).on('load',function() {  callback(key,img); });
     $(img).on('error',errorCallback);
+    if(Q.pixelRatio > 1){
+      var lastPos = src.lastIndexOf('.');
+      if(lastPos){
+        src = src.substring(0, lastPos)+"_2"+src.substring(lastPos);
+      }
+    }
     img.src = Q.options.imagePath + src;
   };
 

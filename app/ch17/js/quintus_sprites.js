@@ -14,8 +14,8 @@ Quintus.Sprites = function(Q) {
       _.extend(this,{
         name: name,
         asset: asset,
-        w: Q.asset(asset).width,
-        h: Q.asset(asset).height,
+        w: Q.asset(asset).width/Q.pixelRatio,
+        h: Q.asset(asset).height/Q.pixelRatio,
         tilew: 64,
         tileh: 64,
         sx: 0,
@@ -80,11 +80,11 @@ Quintus.Sprites = function(Q) {
       }).extend(props||{});
       if((!this.p.w || !this.p.h)) {
         if(this.asset()) {
-          this.p.w = this.p.w || this.asset().width;
-          this.p.h = this.p.h || this.asset().height;
+          this.p.w = this.p.w || this.asset().width/Q.pixelRatio;
+          this.p.h = this.p.h || this.asset().height/Q.pixelRatio;
         } else if(this.sheet()) {
-          this.p.w = this.p.w || this.sheet().tilew;
-          this.p.h = this.p.h || this.sheet().tileh;
+          this.p.w = this.p.w || this.sheet().tilew/Q.pixelRatio;
+          this.p.h = this.p.h || this.sheet().tileh/Q.pixelRatio;
         }
       }
       this.p.id = this.p.id || _.uniqueId();
@@ -104,9 +104,10 @@ Quintus.Sprites = function(Q) {
       if(p.sheet) {
         this.sheet().draw(ctx, p.x, p.y, p.frame);
       } else if(p.asset) {
-        ctx.drawImage(Q.asset(p.asset), 
+        var curAsset = Q.asset(p.asset);
+        ctx.drawImage(curAsset,0, 0, curAsset.width, curAsset.height, 
         Math.floor(p.x), 
-        Math.floor(p.y));
+        Math.floor(p.y), p.w, p.h);
       }
       this.trigger('draw',ctx);
     },

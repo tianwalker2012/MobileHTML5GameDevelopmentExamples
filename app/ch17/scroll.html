@@ -2,15 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Lander</title>
+    <title>哥伦比亚升空计划</title>
     <script src='js/jquery.min.js'></script>
     <script src='js/underscore.js'></script>
     <script src='js/quintus.js'></script>
-    <script src='js/quintus_input.js'></script>
-    <script src='js/quintus_sprites.js?3'></script>
+    <script src='js/quintus_input.js?6'></script>
+    <script src='js/quintus_sprites.js?4'></script>
     <script src='js/quintus_scenes.js'></script>
     <script src='js/quintus_anim.js'></script>
-
+    <script src='js/quintus_audio.js?2'></script>
     <!--<meta name="viewport" content="width=320, user-scalable=no"> -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name=apple-mobile-web-app-capable content=yes>
@@ -18,20 +18,205 @@
     <style>
       body { padding:0px; margin:0px; background-color:#1e7572; }
       #quintus { background-color:#1e7572; }
+
+      .gameoverlay {
+        position: absolute;
+        top:0px;
+        left:0px;
+        width: 96%;
+        height: 96%;
+        z-index: 2000;
+        background: #000;
+        margin: 2% 2%;
+        /**padding:20px 20px 20px 20px;**/
+        opacity: 0.8;
+        
+        /**display: none; **/
+      }
+      .title{
+        text-align: center;
+        position: relative;
+        width: 100%;
+      }
+
+      .introduce{
+        position: relative;
+        width: 80%;
+        height: 100%;
+        padding-left: 25px;
+        padding-right: 25px;
+      }
+
+      .textbody{
+        color:#fff;
+        /**font-size:140%;**/
+        font-color:#fff;
+        font-family:arial;
+      }
+      .buttonRound{
+          -moz-border-radius: 5px;
+          -webkit-border-radius: 5px;
+          -khtml-border-radius: 5px;
+          border-radius: 5px;
+          
+          padding-top: 10px;
+          padding-bottom: 10px;
+          padding-right: 10px;
+          padding-left: 10px;
+          text-align: center;
+          background-color: #555;
+          min-width: 80px;
+          /**opacity: 0.6; **/
+      }
+      .buttonMiddleRegion{
+        position: absolute;
+        bottom: 30%;
+        width: 100%;
+        background-color: rgba(100, 100, 100, 0.0);
+      }
+
+       .buttonBottomRegion{
+          position: absolute;
+          bottom: 15%;
+          width:100%;
+          background-color: rgba(100, 100, 100, 0.0);
+       }
+
+       .buttonLeft{
+          /**bottom: 10%;**/
+          position:absolute;
+          left: 10%;
+       }
+
+       .buttonRight{
+          /**bottom: 10%;**/
+          position:absolute;
+          right: 10%;
+       }
+
+       .buttonCenter{
+          /**left: 40%;**/
+          /**width: 100%;*/
+          /**position:relative;**/
+          /**min-width: 200px;**/
+          width:20%;
+          margin: 0 auto;  
+       }
+       .hidden{
+        display: none;
+       }
+      }
     </style>
   </head>
   <body>
-    <div></div>
+    <div class='gameoverlay textbody'> 
+      <div class='buttonMiddleRegion'>
+         <div id='restart' class='button buttonRound buttonCenter'>重新开始</div> 
+      </div>
+      <div class='buttonBottomRegion'>
+         <div id='begin' class='button buttonRound buttonCenter'>开始</div>
+         <div id='follow' class='button buttonRound buttonRight'>关注哥伦比亚</div>
+         <div id='share' class='button buttonRound buttonLeft'>分享给朋友</div>
+      </div>
+      <div class='title'><h3>哥伦比亚太空计划</h3></div>   
+      <div class='introduce' id='introduce'>手指按住屏幕，然后左右上下移动可以控制气球方向，气球碰到白云会减速，注意躲开石头，争取在最短时间完成</div>
+
+    </div>
     <canvas id='quintus' width='320' height='480'></canvas>
     <script>
+      function printObject(obj){
+        var res = [];
+        for(var key in obj){
+          res.push(key+":"+obj[key]);
+        }
+        return res;
+      }
+
+      function supportsAudio()
+      {
+          var a = document.createElement('audio');
+          return !!(a && a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
+      } 
+
+       var Q = Quintus()
+              .include("Input,Sprites,Scenes,Anim,Audio")
+              .setup().enableSound();
+              
+              Q.audio.spriteFile = "background";
+
+      Q.pixelRatio = window.devicePixelRatio || 1;
+      Q.resizeListeners = [];
+      $(document).ready(
+          function(){
+            //alert("support audio:"+supportsAudio());
+            //var allbuttons = $('.button');
+            console.log('document loaded');
+            $('.button').hide();
+            $('#begin').show();
+            //$('#follow').show();
+            $('#begin').get(0).touchEnd = function(el){
+              //alert('touch end get called');
+              $('.gameoverlay').hide();
+            };
+
+            $('#follow').get(0).touchEnd = function(el){
+                document.location.href = 'http://www.bing.com';
+                $('.gameoverlay').hide();
+            };
+
+            $('#restart').get(0).touchEnd = function(el){
+                Q.unpauseGame();
+                Q.gameStartTime = new Date().getTime();
+                Q.stageScene(Q.currentStage);
+                $('.gameoverlay').hide();
+            };
+
+            $('#share').get(0).touchEnd = function(el){
+              alert('share clicked');
+            };
+
+            $('#begin').show();
+            $('.gameoverlay').click(function(){
+              $('.gameoverlay').hide();
+              Q.audio.manualPlay();
+              alert('manual play success');
+            });
+            $('.gameoverlay').on('touchend', function(e){
+                var evt = e.originalEvent;
+                var touch = evt.changedTouches[0];
+                //var b = $('#begin');
+                //var offset = b.offset()
+                $('.button').each(
+                  function(pos, btn){
+                    var rect = btn.getBoundingClientRect();
+                    //alert("touch clientX:"+touch.clientX+", clientY:"+touch.clientY+",left:"+ printObject(rect).join(',')); 
+                    if(rect.left < touch.clientX && rect.right > touch.clientX && rect.top < touch.clientY && rect.bottom > touch.clientY){
+                      //alert('will call method');
+                      btn.touchEnd('');
+                    }
+                  }
+                );
+            });
+
+          }
+        );
       function debug(info){
         var dr = document.getElementById('debug');
         //dr.innerHTML = info;
       }
-      var Q = Quintus()
-              .include("Input,Sprites,Scenes,Anim")
-              .setup();
-      Q.resizeListeners = [];
+     
+      function enhanceContext(context, innertHeight) {
+          var canvas = document.getElementById('quintus');
+          var ratio = Q.pixelRatio;
+          var width = canvas.width;
+          var height = innerHeight;
+          canvas.width = width * ratio;
+          canvas.height = height * ratio;
+          canvas.style.width = width + "px";
+          canvas.style.height = height + "px";
+          context.scale(ratio, ratio);
+          
+      } 
       Q.followOverlap = function(o1,o2) {
             var collided =  !((o1.p.movedY+o1.p.h-1<o2.p.movedY) || (o1.p.movedY>o2.p.movedY+o2.p.h-1) ||
              (o1.p.x+o1.p.w-1<o2.p.x) || (o1.p.x>o2.p.x+o2.p.w-1));
@@ -41,14 +226,17 @@
             return collided;
       };
       Q.height = window.innerHeight;
-      Q.controls();
+      //var canvas = document.getElementById('quintus');
+      enhanceContext(Q.ctx, window.innerHeight);
+      Q.controls(Q);
 
       $(window).resize(function() {
         //console.log('window was resized:'+window.innerHeight);
-        var canvas = document.getElementById('quintus');
-        canvas.height = window.innerHeight;
+        //var canvas = document.getElementById('quintus');
+        //canvas.height = window.innerHeight;
         Q.height = window.innerHeight;
-        console.log('resize inner height:'+window.innerHeight+", Q height:"+Q.height+",canvas height:"+canvas.height);
+        enhanceContext(Q.ctx, window.innerHeight);
+        console.log('resize inner height:'+window.innerHeight+", Q height:"+Q.height);
         for(var i = 0; i <　Q.resizeListeners.length; i++){
           Q.resizeListeners[i]({width:window.innerWidth, height:window.innerHeight});
         }
@@ -103,13 +291,14 @@
         }
       });
 
+      
       Q.Ship = Q.CenterSprite.extend({
         resistDuration:0,
         resistForce:0.5,
         step: function(dt) {
-          if(Q.inputs['left'] || Q.inputs['right'] || Q.inputs['fire']){
-            this.p.gravity = 20;
-          }
+          //if(Q.inputs['left'] || Q.inputs['right'] || Q.inputs['fire']){
+            //this.p.gravity = 20;
+          //}
           if(!this.p.stepCount){
               this.p.stepCount = 0;  
           }
@@ -121,21 +310,16 @@
           p.fx = 0;
           if(Q.inputs['left']) { p.fx -= p.thrustX; }
           if(Q.inputs['right']) { p.fx += p.thrustX; }
-
           // Set our vertical force
-
           if(Q.inputs['fire'] || Q.inputs['up']){
-              //console.log('fire clicked');
               p.fy = -p.thrustY/2.0;
               p.asset = p.thrustStateImage;
              }else if(Q.inputs['down']){
-                 p.fy = p.thrustY/4.0;
-                 p.asset = p.thrustStateImage;
+              p.fy = p.thrustY/4.0;
+              p.asset = p.thrustStateImage;
             }else {
-            
-            //I can change the image on the fly. 
-            p.fy = 0;
-            p.asset = p.normalStateImage;
+              p.fy = 0;
+              p.asset = p.normalStateImage;
            }
 
           // Calculate our y and x acceleration
@@ -149,26 +333,17 @@
           }
           p.ay = p.gravity + p.fy / p.m - resistAce * p.vy;
           p.ax = p.fx / p.m;
-          
-          // Let our super-class update our x and y
-          //console.log("child p.backgorund:"+p.backgorund);
-          //console.log("will call super:ay:"+p.ay);
-
           this._super(dt);
           var height = Math.floor(-p.movedY);
           height -= height % 3;
           Q.titleScreen.p.subTitle = "当前高度:"+  height;
-          if(this.p.stepCount % 30){
+          if(this.p.stepCount % 30 == 0){
             var passedTime = Math.floor((new Date().getTime() - Q.gameStartTime)/1000);
             Q.titleScreen.p.thirdTitle = "当前耗时:"+passedTime+"秒";
           }
           var col;
           if(col = this.checkCollision()) {
             if(col == 1) {
-              //&& Math.abs(p.vy) < 30
-              //if(p.vy > 0) { 
-              //  p.vy = 0;
-              //}
             } else if(col == 2){
               this.parent.insert(new Q.Explosion(p.x,p.y,p.vx,p.vy,this.imageData));
               this.parent.remove(this);
@@ -190,13 +365,6 @@
            }
         },
         checkCollision: function(){
-          //for(var pos =0; pos < Q.collides.length; pos ++){
-          //  if(Q.followOverlap(this, Q.collides[pos])){
-          //    console.log('detect collision');
-          //    return 2;
-          //  }
-          //}
-          //console.log('not collided');
           if(this.p.isCrashed){
             return 2;
           }
@@ -259,8 +427,10 @@
 
           // Pixels are going to be exploding out from 
           // the center of the lander
-          var centerX = imgData.width / 2;
-          var centerY = imgData.height / 2;
+          var imgWidth = imgData.width;
+          var imgHeight = imgData.height;
+          var centerX = imgWidth / 2;
+          var centerY = imgHeight / 2;
 
           // Loop over each fourth pixel of the lander image
           for(var sy=0;sy < imgData.height;sy+=4) {
@@ -342,63 +512,65 @@
         }
       });
 
-      Q.load(['plane.png','cloud1.png','cloud2.png', 'cloud3.png','stone1.png', 'bottom.png','ball.png','level.json','lander.png','star_back.png','backgroundv1.png', 
-              'lander_thrust.png','easy.png','brick1.png', 'mapv1.png','mapv2.png', 'mapv3.png', 'mapv4.png'], function() {
-        //Q.el.height = window.innerHeight;
-        var canvas = document.getElementById('quintus');
-        canvas.height = window.innerHeight;
+      Q.load(['plane.png','cloud1.png','plane_fly.png','plane_still.png','ball_explosion.png','cloud2.png', 'cloud3.png','background.mp3','stone1.png', 'bottom.png','ball.png','backgroundv1.png','mapv4.png'], function() {
         Q.height = window.innerHeight;
-        console.log('initial inner height:'+window.innerHeight+", Q height:"+Q.height+",canvas height:"+canvas.height);
-       /**
-        Q.compileSheets('chars.png','sprites.json');
-        Q.animations('player', {
-        run_right: { frames: _.range(7,-1,-1), rate: 1/15}, 
-        run_left: { frames: _.range(19,11,-1), rate:1/15 },
-        fire_right: { frames: [9,10,10], next: 'stand_right', rate: 1/30 },
-        fire_left: { frames: [20,21,21], next: 'stand_left', rate: 1/30 },
-        stand_right: { frames: [8], rate: 1/5 },
-        stand_left: { frames: [20], rate: 1/5 },
-        fall_right: { frames: [2], loop: false },
-        fall_left: { frames: [14], loop: false }
-      });
-
-      Q.animations('blob', {
-        run_right: { frames: _.range(0,2), rate: 1/5 },
-        run_left: { frames: _.range(2,4), rate: 1/5 }
-      });
-**/
+        enhanceContext(Q.ctx, window.innerHeight);
         console.log('current height is:'+ Q.height);
-        
+        Q.audio.enableMobileSound();
+        //Q.audio.start();
+
         Q.StepLogic = Q.Sprite.extend({
           init:function(props){
               this._super(_({
-
-
+                 winningStepCount:200,
+                 winning:false,
               }).extend(props));
               this.p.prevHeight = 0;
           },
           step:function(dt){
               var height = Math.abs(Q.leader.p.movedY);
-              if(height > Q.endHeight - Q.height){
+              if(height > (Q.endHeight - Q.height)){
                 //Q.leader.p.gravity = 0;
                 //Q.leader.p.vx = 0;
                 //Q.leader.p.vy = 0;
-                if(!this.p.forkedPlane){
-                  this.p.forkedPlane = true;
+                if(!this.p.plane){
+                  //this.p.forkedPlane = true;
                   this.p.stepCount = Q.leader.p.stepCount;
-                  var plane = new Q.StaticFollowSprite({asset:"plane.png", x:Math.random()*(Q.width-120), y:0, movedY:-Q.endHeight-100, movedX:100});
+                  var plane = new Q.MovingSprite({asset:"plane_still.png", x:Math.random()*(Q.width-100), y:200, movedY:-Q.endHeight-100, movedX:100});
                   this.parent.insert(plane);
-                  //Q.leader.p.vy = -30;
+                  this.p.plane = plane;
+                  Q.leader.p.vy = -30;
                 }else{
-                  Q.leader.p.vy = Q.leader.p.vy * 0.99;
-                  if(Q.leader.p.vy > -30){
-                    Q.leader.p.vy =-30;
-                  }
-                  if(height > Q.endHeight){
+                  //Q.leader.p.vy = Q.leader.p.vy * 0.99;
+
+                  //if(Q.leader.p.vy > -30){
+                  //  Q.leader.p.vy =-30;
+                  //}
+                  if(height > Q.endHeight && !this.p.winning){
                      //Q.leader.p.vy =
-                     Q.pauseGame(); 
+                     //Q.pauseGame();
+                     Q.leader.p.gravity = -20;
+                     this.p.plane.p.asset = "plane_fly.png"
+                     this.p.plane.p.ay = -60;
+                     this.p.winning = true;
                   }
                 }
+                if(this.p.winning){
+                  this.p.winningStepCount --;
+                  if(this.p.winningStepCount < 0){
+                    //$('.introduce').innerHTML = 
+                    $('.gameoverlay').show();
+                    Q.pauseGame();
+                    var passedTime = Math.floor((new Date().getTime() - Q.gameStartTime)/1000);
+                    document.title = "我用"+passedTime+"秒升上了："+Q.endHeight+"米太空，来挑战我吧";
+                    document.getElementById('introduce').innerHTML = passedTime+"秒成功升入太空，让好友来挑战吧。";
+                    $('#follow').show();
+                    $('#share').show();
+                    $('#restart').show();
+                    $('#begin').hide();
+                  }
+                }
+
               }else{
                   if((Q.leader.p.stepCount % 91)== 0 && Math.random()>0.7){
                     var gap = this.p.prevHeight - Q.leader.p.movedY;
@@ -421,7 +593,7 @@
           //stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
           //stage.insert(new Q.Sprite({ asset: "mapv4.png" }));
           //var movingBack = new Q.MovingBackground({ asset: "star_back.png" });
-          var targetHeight = 10000;
+          var targetHeight = 5000;
           var starBack = new Q.StarSprite({}); 
           stage.insert(starBack);
 
@@ -482,7 +654,7 @@
           //ship.p.background = movingBack;
           //console.log('ship.p.background:'+ ship.p.background+", movingBack:"+movingBack+", initial movedY:"+ship.p.movedY);
           Q.backgroundPixels = Q.imageData(Q.asset('mapv4.png'));
-          ship.imageData = Q.imageData(Q.asset('ball.png'));
+          ship.imageData = Q.imageData(Q.asset('ball_explosion.png'));
           
           //Set the bottom to ship distance
           //var gap = ship.p.y - ground.p.y;

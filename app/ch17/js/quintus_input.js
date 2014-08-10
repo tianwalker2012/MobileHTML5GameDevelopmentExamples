@@ -170,7 +170,7 @@ touchLocation: function(touch) {
         color: "#CCC",
         background: "#000",
         alpha: 0.5,
-        zone: (Q.el.attr('width')||Q.width) / 2,
+        zone: (Q.el.attr('width')||Q.width),
         joypadTouch: null,
         inputs: DEFAULT_JOYPAD_INPUTS,
         triggers: []
@@ -182,13 +182,13 @@ touchLocation: function(touch) {
           touch = evt.changedTouches[0],
           loc = Q.input.touchLocation(touch);
 
-          if(loc.x < joypad.zone) {
+          //if(loc.x < joypad.zone) {
             joypad.joypadTouch = touch.identifier;
-            joypad.centerX = loc.x;
-            joypad.centerY = loc.y; 
+            joypad.centerX = loc.x/Q.pixelRatio;
+            joypad.centerY = loc.y/Q.pixelRatio; 
             joypad.x = null;
             joypad.y = null;
-          }
+          //}
         }
       });
       
@@ -201,8 +201,8 @@ touchLocation: function(touch) {
 
             if(touch.identifier === joypad.joypadTouch) {
               var loc = Q.input.touchLocation(touch),
-                  dx = loc.x - joypad.centerX,
-                  dy = loc.y - joypad.centerY,
+                  dx = loc.x/Q.pixelRatio - joypad.centerX,
+                  dy = loc.y/Q.pixelRatio - joypad.centerY,
                   dist = Math.sqrt(dx * dx + dy * dy),
                   overage = Math.max(1,dist / joypad.size),
                   ang =  Math.atan2(dx,dy);
@@ -274,7 +274,6 @@ touchLocation: function(touch) {
 
       this.joypadEnabled = true;
     },
-
     drawButtons: function() {
       var keypad = Q.input.keypad,
           ctx = Q.ctx;
@@ -332,7 +331,7 @@ touchLocation: function(touch) {
           Q.input.drawCircle(joypad.x,
                            joypad.y,
                            joypad.color,
-                           joypad.center);
+                           joypad.center * 2);
         }
       }
 
@@ -358,7 +357,7 @@ touchLocation: function(touch) {
 
     if(joypad) {
       Q.input.touchControls({
-        controls: [ [],[],[],[],['fire','a']]
+        controls: [ [],[],[],[],[]]
       });
       Q.input.joypadControls();
     } else {

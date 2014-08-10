@@ -225,8 +225,8 @@ Q.StarSprite = Q.Sprite.extend({
 
          // Set up the offscreen canvas
         var stars = document.createElement("canvas");
-        stars.width = Q.width; 
-        stars.height = Q.height;
+        stars.width = Q.width * Q.pixelRatio; 
+        stars.height = Q.height * Q.pixelRatio;
         var starCtx = stars.getContext("2d");
         //var offset = 0;
         this.p.stars = stars;
@@ -252,8 +252,8 @@ Q.StarSprite = Q.Sprite.extend({
         }
         this.p.x = 0;
         this.p.y = 0
-        this.p.w = Q.width;
-        this.p.h = Q.height;
+        this.p.w = Q.width * Q.pixelRatio;
+        this.p.h = Q.height * Q.pixelRatio;
       },
 
   // This method is called every frame
@@ -299,19 +299,19 @@ Q.StarSprite = Q.Sprite.extend({
           var sourcePos = imageHeight - yGap;
           var sourceLength = yGap - p.h;
           if(sourceLength >= 0){
-            ctx.drawImage(image, 0, sourcePos, p.w, p.h, p.x, p.y, p.w, p.h);
+            ctx.drawImage(image, 0, sourcePos, p.w, p.h, p.x, p.y, p.w/Q.pixelRatio, p.h/Q.pixelRatio);
           }else{
-            ctx.drawImage(image, 0, sourcePos, p.w, yGap, p.x, p.y, p.w, yGap);
-            ctx.drawImage(image, 0, 0, p.w, p.h - yGap, p.x, p.y + yGap, p.w, p.h - yGap);
+            ctx.drawImage(image, 0, sourcePos, p.w, yGap, p.x, p.y, p.w/Q.pixelRatio, yGap/Q.pixelRatio);
+            ctx.drawImage(image, 0, 0, p.w, p.h - yGap, p.x, p.y + yGap, p.w/Q.pixelRatio, (p.h - yGap)/Q.pixelRatio);
           } 
       }else{
           var upGoing = Math.abs(yGap);
           var remain =p.h - (imageHeight - upGoing); 
           if(remain <= 0){
-            ctx.drawImage(image, 0, upGoing, p.w, p.h, p.x, p.y, p.w, p.h);
+            ctx.drawImage(image, 0, upGoing, p.w, p.h, p.x, p.y, p.w/Q.pixelRatio, p.h/Q.pixelRatio);
           }else{
-            ctx.drawImage(image, 0, upGoing, p.w, (imageHeight - upGoing),p.x, p.y, p.w, (imageHeight - upGoing));
-            ctx.drawImage(image, 0, 0, p.w, remain, p.x,p.y +(imageHeight - upGoing), p.w, remain);
+            ctx.drawImage(image, 0, upGoing, p.w, (imageHeight - upGoing),p.x, p.y, p.w/Q.pixelRatio, (imageHeight - upGoing)/Q.pixelRatio);
+            ctx.drawImage(image, 0, 0, p.w, remain, p.x,p.y +(imageHeight - upGoing), p.w/Q.pixelRatio, remain/Q.pixelRatio);
           }
       }
       }

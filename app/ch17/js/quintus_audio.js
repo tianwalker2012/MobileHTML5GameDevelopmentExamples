@@ -79,12 +79,14 @@ Quintus.Audio = function(Q) {
     };
 
     Q.audio.manualPlay = function(){
-      Q.audio.sheet.play();
+      if(Q.audio.sheet && Q.audio.sheet.play){
+        Q.audio.sheet.play();
+      }
       Q.audio.silenceTimer = setTimeout(Q.audio.timer,500);
-      alert('manual played');
+      //alert('manual played');
     }
     Q.audio.start = function() {
-      alert('audio started');
+      //alert('audio started');
       Q.audio.sheet = new Audio();
       Q.audio.sheet.preload = true;
       Q.audio.sheet.addEventListener("canplaythrough", function() {

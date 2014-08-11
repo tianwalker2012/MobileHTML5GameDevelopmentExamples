@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>哥伦比亚升空计划</title>
+    <title>哥伦比亚太空计划</title>
     <script src='js/jquery.min.js'></script>
     <script src='js/underscore.js'></script>
     <script src='js/quintus.js'></script>
@@ -10,7 +10,7 @@
     <script src='js/quintus_sprites.js?4'></script>
     <script src='js/quintus_scenes.js'></script>
     <script src='js/quintus_anim.js'></script>
-    <script src='js/quintus_audio.js?2'></script>
+    <script src='js/quintus_audio.js?3'></script>
     <!--<meta name="viewport" content="width=320, user-scalable=no"> -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name=apple-mobile-web-app-capable content=yes>
@@ -23,11 +23,11 @@
         position: absolute;
         top:0px;
         left:0px;
-        width: 96%;
-        height: 96%;
+        width: 100%;
+        height: 100%;
         z-index: 2000;
         background: #000;
-        margin: 2% 2%;
+        /**margin: 2% 2%;**/
         /**padding:20px 20px 20px 20px;**/
         opacity: 0.8;
         
@@ -47,6 +47,15 @@
         padding-right: 25px;
       }
 
+      .finger {
+        position: absolute;
+        top:0%;
+        right:0%;
+        color:#fff;
+        font-family:arial;
+        z-index:2500;
+        display: none;
+      }
       .textbody{
         color:#fff;
         /**font-size:140%;**/
@@ -109,14 +118,17 @@
     </style>
   </head>
   <body>
+    <div class='finger'>
+        点击上面的按钮分享
+    </div>
     <div class='gameoverlay textbody'> 
       <div class='buttonMiddleRegion'>
-         <div id='restart' class='button buttonRound buttonCenter'>重新开始</div> 
+         <div id='restart' style="display:none" class='button buttonRound buttonCenter'>重新开始</div> 
       </div>
       <div class='buttonBottomRegion'>
          <div id='begin' class='button buttonRound buttonCenter'>开始</div>
-         <div id='follow' class='button buttonRound buttonRight'>关注哥伦比亚</div>
-         <div id='share' class='button buttonRound buttonLeft'>分享给朋友</div>
+         <div id='follow' style="display:none" class='button buttonRound buttonRight'>关注哥伦比亚</div>
+         <div id='share' style="display:none" class='button buttonRound buttonLeft'>分享给朋友</div>
       </div>
       <div class='title'><h3>哥伦比亚太空计划</h3></div>   
       <div class='introduce' id='introduce'>手指按住屏幕，然后左右上下移动可以控制气球方向，气球碰到白云会减速，注意躲开石头，争取在最短时间完成</div>
@@ -151,11 +163,13 @@
             //alert("support audio:"+supportsAudio());
             //var allbuttons = $('.button');
             console.log('document loaded');
-            $('.button').hide();
-            $('#begin').show();
+            //$('.button').hide();
+            //$('#begin').show();
             //$('#follow').show();
             $('#begin').get(0).touchEnd = function(el){
               //alert('touch end get called');
+              //Q.unpauseGame();
+              //Q.gameStartTime = new Date().getTime();
               $('.gameoverlay').hide();
             };
 
@@ -172,14 +186,15 @@
             };
 
             $('#share').get(0).touchEnd = function(el){
-              alert('share clicked');
+              //alert('share clicked');
+              $('.finger').show();
             };
 
             $('#begin').show();
             $('.gameoverlay').click(function(){
               $('.gameoverlay').hide();
-              Q.audio.manualPlay();
-              alert('manual play success');
+              //Q.audio.manualPlay();
+              //alert('manual play success');
             });
             $('.gameoverlay').on('touchend', function(e){
                 var evt = e.originalEvent;
@@ -276,7 +291,7 @@
             //console.log("pass a object, resist is:"+this.p.isResist+",leader:"+Q.leader.p.movedY+", this movedY:"+this.p.movedY);
             var newMovedY = Q.leader.p.movedY - (Q.height +  1000* Math.random());
             var xgap = Q.width - this.p.w;
-            console.log("pass a object, resist is:"+this.p.isResist+",leader:"+Q.leader.p.movedY+", this movedY:"+this.p.movedY+"new moved:"+newMovedY);
+            //console.log("pass a object, resist is:"+this.p.isResist+",leader:"+Q.leader.p.movedY+", this movedY:"+this.p.movedY+"new moved:"+newMovedY);
             this.p.property.movedY = newMovedY;
             this.p.property.x = xgap * Math.random();
             this.p.property.isResist = this.p.isResist;
@@ -333,7 +348,12 @@
           }
           p.ay = p.gravity + p.fy / p.m - resistAce * p.vy;
           p.ax = p.fx / p.m;
+          //Hand free
+          p.ay = 0;
+          p.vy = -120 - 400 * Math.abs(p.movedY)/Q.endHeight - resistAce * p.vy; 
           this._super(dt);
+          //console.log("ship p.vy:"+p.vy);
+
           var height = Math.floor(-p.movedY);
           height -= height % 3;
           Q.titleScreen.p.subTitle = "当前高度:"+  height;
@@ -572,7 +592,7 @@
                 }
 
               }else{
-                  if((Q.leader.p.stepCount % 91)== 0 && Math.random()>0.7){
+                  if((Q.leader.p.stepCount % 91)== 0 && Math.random()>0.3){
                     var gap = this.p.prevHeight - Q.leader.p.movedY;
                     if(gap < Q.height){
                       return;
@@ -614,16 +634,22 @@
           //console.log('loaded ball width:'+staticBall.p.w+', ground:'+ground.p.w);
           Q.titleScreen = new Q.TitleScreen({title:'目标高度:'+targetHeight, z:0});
           
-          var collid1 = new Q.ResistSprite({asset:"cloud2.png", x:Math.random()*(Q.width-80), y:0, movedY:-1000, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          var collid1 = new Q.ResistSprite({asset:"cloud2.png", x:Math.random()*(Q.width-80), y:0, movedY:-1400, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
           stage.insert(collid1);
 
-          var collid1 = new Q.ResistSprite({asset:"cloud1.png", x:Math.random()*(Q.width-80), y:0, movedY:-1500, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          var collid1 = new Q.ResistSprite({asset:"cloud1.png", x:Math.random()*(Q.width-80), y:0, movedY:-1300, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
           stage.insert(collid1);
 
-          var collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-2000, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          var collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-1200, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
           stage.insert(collid1);
 
-          var collid1 = new Q.ResistSprite({asset:"cloud2.png", x:Math.random()*(Q.width-80), y:0, movedY:-2500, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-500, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          stage.insert(collid1);
+
+          collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-600, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          stage.insert(collid1);
+
+          var collid1 = new Q.ResistSprite({asset:"cloud2.png", x:Math.random()*(Q.width-80), y:0, movedY:-800, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
           stage.insert(collid1);
           
           stage.insert(ground);
@@ -671,6 +697,7 @@
         //Q.stageMaps = {'level':'level1','level1':'level2', 'level2':'level3', 'level3':'level4',"level4":"level"};
         Q.currentStage = "level1";
         Q.stageScene("level1");
+        //Q.pauseGame();
         Q.gameStartTime = new Date().getTime();
         console.log('start time is:'+Q.gameStartTime);
 

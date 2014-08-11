@@ -137,7 +137,7 @@ Quintus.Sprites = function(Q) {
 
         p.x += p.vx * dt;
         p.y += p.vy * dt;
-
+        //console.log('moving get called');
         this._super(dt);
       }
     });
@@ -342,6 +342,7 @@ Q.StarSprite = Q.Sprite.extend({
         p.vy += p.ay * dt;
         p.movedX += p.vx * dt;
         p.movedY += p.vy * dt;
+        //console.log('p.vy:'+p.vy+", movedY:"+p.movedY);
         p.x = p.movedX;
         //console.log("moved y:"+Math.floor(p.movedY)+",p.h:"+p.h+",Q.height:"+Q.height+",y:"+p.y+" vy:"+p.vy+", ay:"+p.ay+", dt:"+dt);
 

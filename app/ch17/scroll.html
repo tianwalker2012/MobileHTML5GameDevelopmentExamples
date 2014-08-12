@@ -552,7 +552,7 @@
         }
       });
 
-      Q.load(['plane.png','cloud1.png','plane_fly.png','plane_still.png','ball_explosion.png','cloud2.png', 'cloud3.png','background.mp3','stone1.png','stone2.png', 'bottom.png','ball.png','backgroundv1.png','mapv4.png'], function() {
+      Q.load(['plane.png','cloud1.png','plane_fly.png','plane_still.png','ball_explosion.png','cloud2.png', 'cloud3.png','background.mp3','stone3.png','stone2.png', 'bottom.png','ball.png','backgroundv1.png','mapv4.png'], function() {
         Q.height = window.innerHeight;
         enhanceContext(Q.ctx, window.innerHeight);
         console.log('current height is:'+ Q.height);
@@ -620,7 +620,7 @@
                     if(gap < Q.height){
                       return;
                     }
-                    var stoneName = 'stone'+(Math.random()>0.5?1:2)+'.png'
+                    var stoneName = 'stone'+(Math.random()>0.5?3:2)+'.png'
                     console.log('create a bomb:'+ stoneName);
                     var bomb = new Q.ResistSprite({asset:stoneName, x:Math.random()*(Q.width-60), y:0, movedY:Q.leader.p.movedY - Q.height, movedX:100, isResist:false});
                     this.parent.insert(bomb);

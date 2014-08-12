@@ -343,8 +343,9 @@
           var p = this.p;
           // Set our horizontal force
           p.fx = 0;
-          if(Q.inputs['left']) { p.fx -= p.thrustX; }
-          if(Q.inputs['right']) { p.fx += p.thrustX; }
+          p.vx = p.vx * .9;
+          if(Q.inputs['left']) { p.fx -= p.thrustX; p.vx = -p.thrustX; }
+          if(Q.inputs['right']) { p.fx += p.thrustX; p.vx = p.thrustX; }
           // Set our vertical force
           if(Q.inputs['fire'] || Q.inputs['up']){
               p.fy = -p.thrustY/2.0;
@@ -371,6 +372,7 @@
           //Hand free
           p.ay = 0;
           p.vy = -120 - 100 * Math.abs(p.movedY)/Q.endHeight - resistAce * p.vy * p.resistDuration/60; 
+          p.ax = 0;
           this._super(dt);
           //console.log("ship p.vy:"+p.vy);
 
@@ -691,7 +693,7 @@
             centerY: (Q.height)/2.0,
             gravity: 20,  // Gravity
             m:       1,   // Ship’s Mass
-            thrustX: 300,  // Horizontal Thrust
+            thrustX: 160,  // Horizontal Thrust
             thrustY: 80,  // Vertical Thrust    
             //background: movingBack,
             movedX: 0,

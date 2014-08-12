@@ -15,6 +15,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name=apple-mobile-web-app-capable content=yes>
     <meta name=apple-mobile-web-app-status-bar-style content=black>
+    <link rel="icon" type="image/png" href="images/icon.png" />
+    <link rel="shortcut icon" href="images/icon.png">
+    <link rel="apple-touch-icon image_src" href="images/icon.png">
+    <div id='wx_pic' style='margin:0 auto;display:none;'>
+        <img src='images/icon.jpg' />
+    </div>
+
     <style>
       body { padding:0px; margin:0px; background-color:#1e7572; }
       #quintus { background-color:#1e7572; }
@@ -51,7 +58,7 @@
         position: absolute;
         top:0%;
         right:0%;
-        color:#fff;
+        color:#ffdd33;
         font-family:arial;
         z-index:2500;
         display: none;
@@ -119,7 +126,9 @@
   </head>
   <body>
     <div class='finger'>
-        点击上面的按钮分享
+      <img src='images/finger.png'/>
+      <div>点击分享</div>
+
     </div>
     <div class='gameoverlay textbody'> 
       <div class='buttonMiddleRegion'>
@@ -170,15 +179,18 @@
               //alert('touch end get called');
               //Q.unpauseGame();
               //Q.gameStartTime = new Date().getTime();
+              //alert('begin called');
               $('.gameoverlay').hide();
             };
 
             $('#follow').get(0).touchEnd = function(el){
                 document.location.href = 'http://www.bing.com';
-                $('.gameoverlay').hide();
+                //$('.gameoverlay').hide();
             };
 
             $('#restart').get(0).touchEnd = function(el){
+                console.log('restart get called');
+                //alert('restart called');
                 Q.unpauseGame();
                 Q.gameStartTime = new Date().getTime();
                 Q.stageScene(Q.currentStage);
@@ -192,9 +204,16 @@
 
             $('#begin').show();
             $('.gameoverlay').click(function(){
+              /**
               $('.gameoverlay').hide();
+              $('.finger').hide();
+              //alert('clicked get called');
               //Q.audio.manualPlay();
               //alert('manual play success');
+                Q.unpauseGame();
+                Q.gameStartTime = new Date().getTime();
+                Q.stageScene(Q.currentStage);
+               **/
             });
             $('.gameoverlay').on('touchend', function(e){
                 var evt = e.originalEvent;
@@ -221,6 +240,7 @@
       }
      
       function enhanceContext(context, innertHeight) {
+          innertHeight = innertHeight;
           var canvas = document.getElementById('quintus');
           var ratio = Q.pixelRatio;
           var width = canvas.width;
@@ -350,7 +370,7 @@
           p.ax = p.fx / p.m;
           //Hand free
           p.ay = 0;
-          p.vy = -120 - 400 * Math.abs(p.movedY)/Q.endHeight - resistAce * p.vy; 
+          p.vy = -120 - 100 * Math.abs(p.movedY)/Q.endHeight - resistAce * p.vy * p.resistDuration/60; 
           this._super(dt);
           //console.log("ship p.vy:"+p.vy);
 
@@ -532,7 +552,7 @@
         }
       });
 
-      Q.load(['plane.png','cloud1.png','plane_fly.png','plane_still.png','ball_explosion.png','cloud2.png', 'cloud3.png','background.mp3','stone1.png', 'bottom.png','ball.png','backgroundv1.png','mapv4.png'], function() {
+      Q.load(['plane.png','cloud1.png','plane_fly.png','plane_still.png','ball_explosion.png','cloud2.png', 'cloud3.png','background.mp3','stone1.png','stone2.png', 'bottom.png','ball.png','backgroundv1.png','mapv4.png'], function() {
         Q.height = window.innerHeight;
         enhanceContext(Q.ctx, window.innerHeight);
         console.log('current height is:'+ Q.height);
@@ -556,7 +576,7 @@
                 if(!this.p.plane){
                   //this.p.forkedPlane = true;
                   this.p.stepCount = Q.leader.p.stepCount;
-                  var plane = new Q.MovingSprite({asset:"plane_still.png", x:Math.random()*(Q.width-100), y:200, movedY:-Q.endHeight-100, movedX:100});
+                  var plane = new Q.MovingSprite({asset:"plane_still.png", x:Q.width/2.0, y:-110, movedY:-Q.endHeight-100, movedX:100});
                   this.parent.insert(plane);
                   this.p.plane = plane;
                   Q.leader.p.vy = -30;
@@ -566,6 +586,9 @@
                   //if(Q.leader.p.vy > -30){
                   //  Q.leader.p.vy =-30;
                   //}
+                  if(this.p.plane.p.y < 150){
+                    this.p.plane.p.y += 1;
+                  }
                   if(height > Q.endHeight && !this.p.winning){
                      //Q.leader.p.vy =
                      //Q.pauseGame();
@@ -597,8 +620,9 @@
                     if(gap < Q.height){
                       return;
                     }
-                    console.log('create a bomb');
-                    var bomb = new Q.ResistSprite({asset:"stone1.png", x:Math.random()*(Q.width-60), y:0, movedY:Q.leader.p.movedY - Q.height, movedX:100, isResist:false});
+                    var stoneName = 'stone'+(Math.random()>0.5?1:2)+'.png'
+                    console.log('create a bomb:'+ stoneName);
+                    var bomb = new Q.ResistSprite({asset:stoneName, x:Math.random()*(Q.width-60), y:0, movedY:Q.leader.p.movedY - Q.height, movedX:100, isResist:false});
                     this.parent.insert(bomb);
                   }
 
@@ -634,22 +658,22 @@
           //console.log('loaded ball width:'+staticBall.p.w+', ground:'+ground.p.w);
           Q.titleScreen = new Q.TitleScreen({title:'目标高度:'+targetHeight, z:0});
           
-          var collid1 = new Q.ResistSprite({asset:"cloud2.png", x:Math.random()*(Q.width-80), y:0, movedY:-1400, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          var collid1 = new Q.ResistSprite({asset:"cloud2.png", x:Math.random()*(Q.width-80), y:0, movedY:-1400, movedX:100, removePassed:false, resistForce:0.7, resistDuration:80, isResist:true});
           stage.insert(collid1);
 
-          var collid1 = new Q.ResistSprite({asset:"cloud1.png", x:Math.random()*(Q.width-80), y:0, movedY:-1300, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          var collid1 = new Q.ResistSprite({asset:"cloud1.png", x:Math.random()*(Q.width-80), y:0, movedY:-1300, movedX:100, removePassed:false, resistForce:0.7, resistDuration:80, isResist:true});
           stage.insert(collid1);
 
-          var collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-1200, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          var collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-1200, movedX:100, removePassed:false, resistForce:0.7, resistDuration:80, isResist:true});
           stage.insert(collid1);
 
-          collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-500, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-500, movedX:100, removePassed:false, resistForce:0.7, resistDuration:80, isResist:true});
           stage.insert(collid1);
 
-          collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-600, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-600, movedX:100, removePassed:false, resistForce:0.7, resistDuration:80, isResist:true});
           stage.insert(collid1);
 
-          var collid1 = new Q.ResistSprite({asset:"cloud2.png", x:Math.random()*(Q.width-80), y:0, movedY:-800, movedX:100, removePassed:false, resistForce:0.7, resistDuration:30, isResist:true});
+          var collid1 = new Q.ResistSprite({asset:"cloud2.png", x:Math.random()*(Q.width-80), y:0, movedY:-800, movedX:100, removePassed:false, resistForce:0.7, resistDuration:80, isResist:true});
           stage.insert(collid1);
           
           stage.insert(ground);

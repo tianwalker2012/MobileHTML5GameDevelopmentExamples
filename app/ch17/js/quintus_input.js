@@ -193,6 +193,10 @@ touchLocation: function(touch) {
       });
       
       Q.el.on('touchmove',function(e) {
+        //if(Q.needPlaying){
+        //  Q.myMusic.play();
+        //}
+        //Q.needPlaying = false;
         if(joypad.joypadTouch !== null) {
           var evt = e.originalEvent;
 

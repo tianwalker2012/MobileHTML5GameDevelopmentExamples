@@ -96,7 +96,7 @@ Quintus.Audio = function(Q) {
       var spriteFilename = Q.options.audioPath + Q.audio.spriteFile;
       //alert('sprite file name:'+spriteFilename);
       if(isiOS) {
-        Q.audio.sheet.src = spriteFilename + ".caf";
+        Q.audio.sheet.src = spriteFilename + ".mp3";
       } else {
         Q.audio.sheet.src = spriteFilename + ".mp3";
       }

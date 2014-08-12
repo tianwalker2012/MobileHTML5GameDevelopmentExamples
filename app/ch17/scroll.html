@@ -6,7 +6,7 @@
     <script src='js/jquery.min.js'></script>
     <script src='js/underscore.js'></script>
     <script src='js/quintus.js'></script>
-    <script src='js/quintus_input.js?6'></script>
+    <script src='js/quintus_input.js?7'></script>
     <script src='js/quintus_sprites.js?4'></script>
     <script src='js/quintus_scenes.js'></script>
     <script src='js/quintus_anim.js'></script>
@@ -139,12 +139,14 @@
          <div id='follow' style="display:none" class='button buttonRound buttonRight'>关注哥伦比亚</div>
          <div id='share' style="display:none" class='button buttonRound buttonLeft'>分享给朋友</div>
       </div>
+       
       <div class='title'><h3>哥伦比亚太空计划</h3></div>   
       <div class='introduce' id='introduce'>手指按住屏幕，然后左右上下移动可以控制气球方向，气球碰到白云会减速，注意躲开石头，争取在最短时间完成</div>
 
     </div>
     <canvas id='quintus' width='320' height='480'></canvas>
     <script>
+
       function printObject(obj){
         var res = [];
         for(var key in obj){
@@ -163,12 +165,45 @@
               .include("Input,Sprites,Scenes,Anim,Audio")
               .setup().enableSound();
               
-              Q.audio.spriteFile = "background";
-
+              //Q.audio.spriteFile = "background";
+      var myMusic = new Audio();
+      myMusic.loop = true;
+      Q.needPlaying = true;
+      myMusic.src = "audio/background.mp3";
+      console.log('music object:'+myMusic+", src:"+myMusic.src);
+      Q.myMusic = myMusic;
       Q.pixelRatio = window.devicePixelRatio || 1;
       Q.resizeListeners = [];
+
+      function playCyclic(){
+        //alert('start playing');
+        //if(Q.myMusic.ended || Q.myMusic.paused){
+        Q.myMusic.play();
+        //Q.needPlaying = true;
+        //alert('before set time '+Q.myMusic.currentTime+Q.myMusic.startTime);
+        //var resStr = "";
+        //for(var key in Q.myMusic){
+        //  resStr += key + ",";
+        //}
+        try{
+        //alert('property:'+Q.myMusic.loop);
+          if(Q.myMusic.currentTime > 0){
+            //Q.myMusic.currentTime = 0;
+            //Q.myMusic.loop();
+            //alert('encounter bigger than zero, startTime:'+Q.myMusic.startTime+","+Q.myMusic.currentTime+",begin:"+Q.myMusic.rewind);
+          }
+          //alert('after set time');
+          //Q.myMusic.play();
+        }catch(e){
+          alert("exception:"+e);
+        }
+        //alert('before time out');
+        setTimeout(function(){playCyclic();}, 2000);
+        //alert('after time out');
+      }
       $(document).ready(
           function(){
+             //document.getElementsById('music').play();
             //alert("support audio:"+supportsAudio());
             //var allbuttons = $('.button');
             console.log('document loaded');
@@ -180,7 +215,10 @@
               //Q.unpauseGame();
               //Q.gameStartTime = new Date().getTime();
               //alert('begin called');
+              playCyclic();
               $('.gameoverlay').hide();
+              //document.getElementsByTagName('audio')[0].play();
+              //document.getElementsByTagName('audio')[0].pause();
             };
 
             $('#follow').get(0).touchEnd = function(el){
@@ -204,8 +242,10 @@
 
             $('#begin').show();
             $('.gameoverlay').click(function(){
+
+               //playCyclic();
+              //$('.gameoverlay').hide();
               /**
-              $('.gameoverlay').hide();
               $('.finger').hide();
               //alert('clicked get called');
               //Q.audio.manualPlay();
@@ -216,8 +256,11 @@
                **/
             });
             $('.gameoverlay').on('touchend', function(e){
+                //Q.myMusic.play();
+                //playCyclic();
                 var evt = e.originalEvent;
                 var touch = evt.changedTouches[0];
+
                 //var b = $('#begin');
                 //var offset = b.offset()
                 $('.button').each(

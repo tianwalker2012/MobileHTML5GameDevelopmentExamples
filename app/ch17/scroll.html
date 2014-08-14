@@ -191,6 +191,7 @@
         }
         return res;
       }
+      var iOS = (navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false);
 
       function supportsAudio()
       {
@@ -211,6 +212,9 @@
       console.log('music object:'+myMusic+", src:"+myMusic.src);
       Q.myMusic = myMusic;
       Q.pixelRatio = window.devicePixelRatio || 1;
+      if(!iOS){
+        Q.pixelRatio = 1;
+      }
       Q.resizeListeners = [];
 
       function playCyclic(){
@@ -404,7 +408,7 @@
             this.p.property.x = xgap * Math.random();
             this.p.property.movedY = newMovedY; 
             this.p.property.isResist = this.p.isResist;
-            console.log("will new a object, resist is:"+this.p.isResist);
+            //console.log("will new a object, resist is:"+this.p.isResist);
             //var resistAgin = new Q.ResistSprite(this.p.property);
             //this.parent.insert(resistAgin);
             this.parent.remove(this);

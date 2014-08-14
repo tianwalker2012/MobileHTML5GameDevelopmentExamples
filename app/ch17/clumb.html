@@ -41,18 +41,6 @@
         /**display: none; **/
       }
 
-      .shareoverlay {
-        position: absolute;
-        top:0px;
-        left:0px;
-        width: 100%;
-        height: 100%;
-        z-index: 3000;
-        background: #000;
-        opacity: 0.8;
-        display: none;
-      }
-
       .roundCorner{
           -moz-border-radius: 10px;
           -webkit-border-radius: 10px;
@@ -68,21 +56,10 @@
 
       .introduce{
         position: relative;
-        width: 90%;
+        width: 80%;
         height: 100%;
         padding-left: 25px;
         padding-right: 25px;
-      }
-
-      .bottomInfo{
-        position: absolute;
-        width: 80%;
-        /**height: 100%;**/
-        left:0%;
-        bottom:30%;
-        padding-left: 25px;
-        padding-right: 25px;
-        display: none;
       }
 
       .finger {
@@ -91,6 +68,8 @@
         right:0%;
         color:#ffdd33;
         font-family:arial;
+        z-index:2500;
+        display: none;
       }
       .textbody{
         color:#fff;
@@ -111,12 +90,11 @@
           text-align: center;
           background-color: #555;
           min-width: 80px;
-          font: bold arial,serif;
           /**opacity: 0.6; **/
       }
       .buttonMiddleRegion{
         position: absolute;
-        bottom: 70%;
+        bottom: 30%;
         width: 100%;
         background-color: rgba(100, 100, 100, 0.0);
       }
@@ -145,7 +123,7 @@
           /**width: 100%;*/
           /**position:relative;**/
           /**min-width: 200px;**/
-          width:50%;
+          width:20%;
           margin: 0 auto;  
        }
        .hidden{
@@ -155,31 +133,24 @@
     </style>
   </head>
   <body>
-    <div class='shareoverlay'>
     <div class='finger'>
       <img src='images/finger.png'/>
       <div>点击分享</div>
-    </div>
-    </div>
 
+    </div>
     <div class='gameoverlay textbody roundCorner'> 
       <div class='buttonMiddleRegion'>
-         <div id='restart' style="display:none;background-color:rgb(52,132,191)" class='button buttonRound buttonLeft'>再玩一次</div> 
-         <div id='share' style="display:none;background-color:rgb(252,203,73)" class='button buttonRound buttonRight'>炫耀一下</div>
+         <div id='restart' style="display:none" class='button buttonRound buttonCenter'>重新开始</div> 
       </div>
       <div class='buttonBottomRegion'>
-         <div id='begin' style="background-color:rgb(255,109,98)" class='button buttonRound buttonCenter'>GO</div>
-         <div id='follow' style="display:none;background-color:rgb(64,180,89)" class='button buttonRound buttonCenter'>关注我们，一起飞！</div>
-         
+         <div id='begin' class='button buttonRound buttonCenter'>开始</div>
+         <div id='follow' style="display:none" class='button buttonRound buttonRight'>关注哥伦比亚</div>
+         <div id='share' style="display:none" class='button buttonRound buttonLeft'>分享给朋友</div>
       </div>
        
       <div class='title'><h3>哥伦比亚太空计划</h3></div>   
-      <div class='introduce' id='introduce'>
-         哥伦比亚号在4万米高空召唤你，已有23万人与它成功对接。你敢挑战么？
-      </div>
-      <div class='bottomInfo'>
-        2014年，大悲乐队将携手自由联合，带着所有人的梦想，飞入太空。
-      </div>
+      <div class='introduce' id='introduce'>手指按住屏幕，然后左右上下移动可以控制气球方向，气球碰到白云会减速，注意躲开石头，争取在最短时间完成</div>
+
     </div>
     <canvas id='quintus' width='320' height='480'></canvas>
     <script>
@@ -261,7 +232,7 @@
             };
 
             $('#follow').get(0).touchEnd = function(el){
-                document.location.href = 'http://mp.weixin.qq.com/s?__biz=MjM5Njc5Njg1Mw==&mid=200520995&idx=1&sn=039b45ae36b87e21c9f4051000a49fc1&scene=4#wechat_redirect';
+                document.location.href = 'http://www.bing.com';
                 //$('.gameoverlay').hide();
             };
 
@@ -272,23 +243,18 @@
                 Q.gameStartTime = new Date().getTime();
                 Q.stageScene(Q.currentStage);
                 $('.gameoverlay').hide();
-                $('.shareoverlay').hide();
             };
 
             $('#share').get(0).touchEnd = function(el){
               //alert('share clicked');
-              $('.shareoverlay').show();
+              $('.finger').show();
             };
 
             $('#begin').show();
-            $('.shareoverlay').on('touchend', function(e){
-                $('.shareoverlay').hide();
-            });
             $('.gameoverlay').click(function(){
 
                //playCyclic();
-              $('.gameoverlay').hide();
-              Q.unpauseGame();
+              //$('.gameoverlay').hide();
               /**
               $('.finger').hide();
               //alert('clicked get called');
@@ -321,23 +287,11 @@
 
           }
         );
-      function showCrash(){
-        Q.pauseGame();
-        var passedTime = Math.floor((new Date().getTime() - Q.gameStartTime)/1000);
-        document.title = "我离哥伦比亚号只有“"+ Math.floor(Math.abs(Q.endHeight + Q.leader.p.movedY) * multipleRatio)+"”米！你行么！";
-        $('.gameoverlay').show();
-        $('.bottomInfo').show();
-        document.getElementById('introduce').innerHTML = "啊哦,你离哥伦比亚号只有“"+Math.floor((Math.abs(Q.endHeight + Q.leader.p.movedY) * multipleRatio)) +"”米了。";
-          $('#follow').show();
-          $('#share').show();
-          $('#restart').show();
-          $('#begin').hide();
-      };
       function debug(info){
         var dr = document.getElementById('debug');
         //dr.innerHTML = info;
       }
-       
+     
       function enhanceContext(context, innertHeight) {
           innertHeight = innertHeight;
           var canvas = document.getElementById('quintus');
@@ -396,8 +350,6 @@
               Q.leader.p.resistForce = this.p.resistForce;
             }else{
               Q.leader.p.isCrashed = true;
-
-              //showCrash();
             }
             var newMovedY = Q.leader.p.movedY - (Q.height +  1000* Math.random());
             var xgap = Q.width - this.p.w;
@@ -405,8 +357,8 @@
             this.p.property.movedY = newMovedY; 
             this.p.property.isResist = this.p.isResist;
             console.log("will new a object, resist is:"+this.p.isResist);
-            //var resistAgin = new Q.ResistSprite(this.p.property);
-            //this.parent.insert(resistAgin);
+            var resistAgin = new Q.ResistSprite(this.p.property);
+            this.parent.insert(resistAgin);
             this.parent.remove(this);
           }else if((this.p.movedY - Q.leader.p.movedY) > Q.height){
             //console.log("pass a object, resist is:"+this.p.isResist+",leader:"+Q.leader.p.movedY+", this movedY:"+this.p.movedY);
@@ -492,7 +444,6 @@
               this.parent.insert(new Q.Explosion(p.x,p.y,p.vx,p.vy,this.imageData));
               this.parent.remove(this);
               this.dead=true;
-              //showCrash();
             }
           }
 
@@ -634,9 +585,7 @@
             }
             if(v.lifetime <= 0) { 
 
-              //Q.stageScene(Q.currentStage); 
-              showCrash();
-              return; }
+              Q.stageScene(Q.currentStage); return; }
           }
 
         },
@@ -716,9 +665,8 @@
                     $('.gameoverlay').show();
                     Q.pauseGame();
                     var passedTime = Math.floor((new Date().getTime() - Q.gameStartTime)/1000);
-                    document.title = "我用“"+passedTime+"”秒与哥伦比亚成功对接！你敢挑战吗？";
-                    document.getElementById('introduce').innerHTML ="你用“"+passedTime+"”秒与哥伦比亚对接，打败了70%的人。";
-                    $('.bottomInfo').show();
+                    document.title = "我用"+passedTime+"秒升上了："+Q.endHeight * multipleRatio+"米太空，来挑战我吧";
+                    document.getElementById('introduce').innerHTML = passedTime+"秒成功升入太空，让好友来挑战吧。";
                     $('#follow').show();
                     $('#share').show();
                     $('#restart').show();

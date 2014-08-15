@@ -1,0 +1,841 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>哥伦比亚太空计划</title>
+    <script src='js/jquery.min.js'></script>
+    <script src='js/underscore.js'></script>
+    <script src='js/quintus.js'></script>
+    <script src='js/quintus_input.js?7'></script>
+    <script src='js/quintus_sprites.js?4'></script>
+    <script src='js/quintus_scenes.js'></script>
+    <script src='js/quintus_anim.js'></script>
+    <script src='js/quintus_audio.js?3'></script>
+    <!--<meta name="viewport" content="width=320, user-scalable=no"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name=apple-mobile-web-app-capable content=yes>
+    <meta name=apple-mobile-web-app-status-bar-style content=black>
+    <link rel="icon" type="image/png" href="images/icon.png" />
+    <link rel="shortcut icon" href="images/icon.png">
+    <link rel="apple-touch-icon image_src" href="images/icon.png">
+    <div id='wx_pic' style='margin:0 auto;display:none;'>
+        <img src='images/icon.jpg' />
+    </div>
+
+    <style>
+      body { padding:0px; margin:0px; background-color:#1e7572; }
+      #quintus { background-color:#1e7572; }
+
+      .gameoverlay {
+        position: absolute;
+        top:0px;
+        left:0px;
+        width: 90%;
+        height: 80%;
+        z-index: 2000;
+        background: #000;
+        margin: 10% 5%;
+        /**padding:20px 20px 20px 20px;**/
+        opacity: 0.8;
+        
+        /**display: none; **/
+      }
+
+      .shareoverlay {
+        position: absolute;
+        top:0px;
+        left:0px;
+        width: 100%;
+        height: 100%;
+        z-index: 3000;
+        background: #000;
+        opacity: 0.8;
+        display: none;
+      }
+
+      .roundCorner{
+          -moz-border-radius: 10px;
+          -webkit-border-radius: 10px;
+          -khtml-border-radius: 10px;
+          border-radius: 10px;
+      }
+
+      .title{
+        text-align: center;
+        position: relative;
+        width: 100%;
+      }
+
+      .introduce{
+        position: relative;
+        width: 90%;
+        height: 100%;
+        padding-left: 25px;
+        padding-right: 25px;
+      }
+
+      .bottomInfo{
+        position: absolute;
+        width: 80%;
+        /**height: 100%;**/
+        left:0%;
+        bottom:30%;
+        padding-left: 25px;
+        padding-right: 25px;
+        display: none;
+      }
+
+      .finger {
+        position: absolute;
+        top:0%;
+        right:0%;
+        color:#ffdd33;
+        font-family:arial;
+      }
+      .textbody{
+        color:#fff;
+        /**font-size:140%;**/
+        font-color:#fff;
+        font-family:arial;
+      }
+      .buttonRound{
+          -moz-border-radius: 5px;
+          -webkit-border-radius: 5px;
+          -khtml-border-radius: 5px;
+          border-radius: 5px;
+          
+          padding-top: 10px;
+          padding-bottom: 10px;
+          padding-right: 10px;
+          padding-left: 10px;
+          text-align: center;
+          background-color: #555;
+          min-width: 80px;
+          font: bold arial,serif;
+          /**opacity: 0.6; **/
+      }
+      .buttonMiddleRegion{
+        position: absolute;
+        bottom: 70%;
+        width: 100%;
+        background-color: rgba(100, 100, 100, 0.0);
+      }
+
+       .buttonBottomRegion{
+          position: absolute;
+          bottom: 15%;
+          width:100%;
+          background-color: rgba(100, 100, 100, 0.0);
+       }
+
+       .buttonLeft{
+          /**bottom: 10%;**/
+          position:absolute;
+          left: 10%;
+       }
+
+       .buttonRight{
+          /**bottom: 10%;**/
+          position:absolute;
+          right: 10%;
+       }
+
+       .buttonCenter{
+          /**left: 40%;**/
+          /**width: 100%;*/
+          /**position:relative;**/
+          /**min-width: 200px;**/
+          width:50%;
+          margin: 0 auto;  
+       }
+       .hidden{
+        display: none;
+       }
+      }
+    </style>
+  </head>
+  <body>
+    <div class='shareoverlay'>
+    <div class='finger'>
+      <img src='images/finger.png'/>
+      <div>点击分享</div>
+    </div>
+    </div>
+
+    <div class='gameoverlay textbody roundCorner'> 
+      <div class='buttonMiddleRegion'>
+         <div id='restart' style="display:none;background-color:rgb(52,132,191)" class='button buttonRound buttonLeft'>再玩一次</div> 
+         <div id='share' style="display:none;background-color:rgb(252,203,73)" class='button buttonRound buttonRight'>炫耀一下</div>
+      </div>
+      <div class='buttonBottomRegion'>
+         <div id='begin' style="background-color:rgb(255,109,98)" class='button buttonRound buttonCenter'>GO</div>
+         <div id='follow' style="display:none;background-color:rgb(64,180,89)" class='button buttonRound buttonCenter'>关注我们，一起飞！</div>
+         
+      </div>
+       
+      <div class='title'><h3>哥伦比亚太空计划</h3></div>   
+      <div class='introduce' id='introduce'>
+         哥伦比亚号在4万米高空召唤你，已有23万人与它成功对接。你敢挑战么？
+      </div>
+      <div class='bottomInfo'>
+        2014年，大悲乐队将携手自由联合，带着所有人的梦想，飞入太空。
+      </div>
+    </div>
+    <canvas id='quintus' width='320' height='480'></canvas>
+    <script>
+
+      function printObject(obj){
+        var res = [];
+        for(var key in obj){
+          res.push(key+":"+obj[key]);
+        }
+        return res;
+      }
+      var iOS = (navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false);
+
+      function supportsAudio()
+      {
+          var a = document.createElement('audio');
+          return !!(a && a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
+      } 
+      var targetHeight = 8000;
+      var multipleRatio = 5;
+       var Q = Quintus()
+              .include("Input,Sprites,Scenes,Anim,Audio")
+              .setup().enableSound();
+              
+              //Q.audio.spriteFile = "background";
+      var myMusic = new Audio();
+      myMusic.loop = true;
+      Q.needPlaying = true;
+      myMusic.src = "audio/background.mp3";
+      console.log('music object:'+myMusic+", src:"+myMusic.src);
+      Q.myMusic = myMusic;
+      Q.pixelRatio = window.devicePixelRatio || 1;
+      if(!iOS){
+        Q.pixelRatio = 1;
+      }
+      Q.resizeListeners = [];
+
+      function playCyclic(){
+        //alert('start playing');
+        //if(Q.myMusic.ended || Q.myMusic.paused){
+        Q.myMusic.play();
+        //Q.needPlaying = true;
+        //alert('before set time '+Q.myMusic.currentTime+Q.myMusic.startTime);
+        //var resStr = "";
+        //for(var key in Q.myMusic){
+        //  resStr += key + ",";
+        //}
+        try{
+        //alert('property:'+Q.myMusic.loop);
+          if(Q.myMusic.currentTime > 0){
+            //Q.myMusic.currentTime = 0;
+            //Q.myMusic.loop();
+            //alert('encounter bigger than zero, startTime:'+Q.myMusic.startTime+","+Q.myMusic.currentTime+",begin:"+Q.myMusic.rewind);
+          }
+          //alert('after set time');
+          //Q.myMusic.play();
+        }catch(e){
+          alert("exception:"+e);
+        }
+        //alert('before time out');
+        setTimeout(function(){playCyclic();}, 2000);
+        //alert('after time out');
+      }
+      $(document).ready(
+          function(){
+             //document.getElementsById('music').play();
+            //alert("support audio:"+supportsAudio());
+            //var allbuttons = $('.button');
+            console.log('document loaded');
+            //$('.button').hide();
+            //$('#begin').show();
+            //$('#follow').show();
+            $('#begin').get(0).touchEnd = function(el){
+              //alert('touch end get called');
+              Q.unpauseGame();
+              Q.stopAtStart = false;
+              //Q.gameStartTime = new Date().getTime();
+              //alert('begin called');
+              playCyclic();
+              $('.gameoverlay').hide();
+              //document.getElementsByTagName('audio')[0].play();
+              //document.getElementsByTagName('audio')[0].pause();
+            };
+
+            $('#follow').get(0).touchEnd = function(el){
+                document.location.href = 'http://mp.weixin.qq.com/s?__biz=MjM5Njc5Njg1Mw==&mid=200520995&idx=1&sn=039b45ae36b87e21c9f4051000a49fc1&scene=4#wechat_redirect';
+                //$('.gameoverlay').hide();
+            };
+
+            $('#restart').get(0).touchEnd = function(el){
+                console.log('restart get called');
+                //alert('restart called');
+                Q.unpauseGame();
+                Q.gameStartTime = new Date().getTime();
+                Q.stageScene(Q.currentStage);
+                $('.gameoverlay').hide();
+                $('.shareoverlay').hide();
+            };
+
+            $('#share').get(0).touchEnd = function(el){
+              //alert('share clicked');
+              $('.shareoverlay').show();
+            };
+
+            $('#begin').show();
+            $('.shareoverlay').on('touchend', function(e){
+                $('.shareoverlay').hide();
+            });
+            $('.gameoverlay').click(function(){
+
+               //playCyclic();
+              $('.gameoverlay').hide();
+              Q.unpauseGame();
+              /**
+              $('.finger').hide();
+              //alert('clicked get called');
+              //Q.audio.manualPlay();
+              //alert('manual play success');
+                Q.unpauseGame();
+                Q.gameStartTime = new Date().getTime();
+                Q.stageScene(Q.currentStage);
+               **/
+            });
+            $('.gameoverlay').on('touchend', function(e){
+                //Q.myMusic.play();
+                //playCyclic();
+                var evt = e.originalEvent;
+                var touch = evt.changedTouches[0];
+
+                //var b = $('#begin');
+                //var offset = b.offset()
+                $('.button').each(
+                  function(pos, btn){
+                    var rect = btn.getBoundingClientRect();
+                    //alert("touch clientX:"+touch.clientX+", clientY:"+touch.clientY+",left:"+ printObject(rect).join(',')); 
+                    if(rect.left < touch.clientX && rect.right > touch.clientX && rect.top < touch.clientY && rect.bottom > touch.clientY){
+                      //alert('will call method');
+                      btn.touchEnd('');
+                    }
+                  }
+                );
+            });
+
+          }
+        );
+      function showCrash(){
+        Q.pauseGame();
+        var passedTime = Math.floor((new Date().getTime() - Q.gameStartTime)/1000);
+        document.title = "我离哥伦比亚号只有“"+ Math.floor(Math.abs(Q.endHeight + Q.leader.p.movedY) * multipleRatio)+"”米！你行么！";
+        $('.gameoverlay').show();
+        $('.bottomInfo').show();
+        document.getElementById('introduce').innerHTML = "啊哦,你离哥伦比亚号只有“"+Math.floor((Math.abs(Q.endHeight + Q.leader.p.movedY) * multipleRatio)) +"”米了。";
+          $('#follow').show();
+          $('#share').show();
+          $('#restart').show();
+          $('#begin').hide();
+      };
+      function debug(info){
+        var dr = document.getElementById('debug');
+        //dr.innerHTML = info;
+      }
+       
+      function enhanceContext(context, innertHeight, innerWidth) {
+          innertHeight = innertHeight;
+          var canvas = document.getElementById('quintus');
+          var ratio = Q.pixelRatio;
+          var width = innerWidth;
+          var height = innerHeight;
+          canvas.width = width * ratio;
+          canvas.height = height * ratio;
+          canvas.style.width = width + "px";
+          canvas.style.height = height + "px";
+          context.scale(ratio, ratio);
+          
+      } 
+      Q.followOverlap = function(o1,o2) {
+            var collided =  !((o1.p.movedY+o1.p.h-1<o2.p.movedY) || (o1.p.movedY>o2.p.movedY+o2.p.h-1) ||
+             (o1.p.x+o1.p.w-1<o2.p.x) || (o1.p.x>o2.p.x+o2.p.w-1));
+            if(collided){
+              console.log("1y:"+o1.p.movedY+",1h:"+o1.p.h+",2y:"+o2.p.movedY+",2h:"+o2.p.h);
+            }
+            return collided;
+      };
+      Q.height = window.innerHeight;
+      //Q.width = window.innerWidth;
+      //var canvas = document.getElementById('quintus');
+      enhanceContext(Q.ctx, window.innerHeight, Q.width);
+      Q.controls(Q);
+
+      $(window).resize(function() {
+        //console.log('window was resized:'+window.innerHeight);
+        //var canvas = document.getElementById('quintus');
+        //canvas.height = window.innerHeight;
+        Q.height = window.innerHeight;
+        //Q.width = window.innerWidth;
+        enhanceContext(Q.ctx, window.innerHeight, Q.width);
+        console.log('resize inner height:'+window.innerHeight+", Q height:"+Q.height);
+        for(var i = 0; i <　Q.resizeListeners.length; i++){
+          Q.resizeListeners[i]({width:window.innerWidth, height:window.innerHeight});
+        }
+        //Q.InputSystem.drawButtons();
+      });
+
+      Q.ResistSprite = Q.StaticFollowSprite.extend({
+        init: function(props) {
+        this._super(_({
+          resistForce:0.5,
+          resistDuration:30,
+          isResist:true,
+          z:10
+        }).extend(props));
+          this.p.property = props;
+        },
+
+        step: function(dt) {
+          this._super(dt);
+          if(Q.followOverlap(Q.leader, this)){
+           
+            if(this.p.isResist){
+              Q.leader.p.resistDuration = this.p.resistDuration;
+              Q.leader.p.resistForce = this.p.resistForce;
+            }else{
+              Q.leader.p.isCrashed = true;
+
+              //showCrash();
+            }
+            var newMovedY = Q.leader.p.movedY - (Q.height +  1000* Math.random());
+            var xgap = Q.width - this.p.w;
+            this.p.property.x = xgap * Math.random();
+            this.p.property.movedY = newMovedY; 
+            this.p.property.isResist = this.p.isResist;
+            //console.log("will new a object, resist is:"+this.p.isResist);
+            //var resistAgin = new Q.ResistSprite(this.p.property);
+            //this.parent.insert(resistAgin);
+            this.parent.remove(this);
+          }else if((this.p.movedY - Q.leader.p.movedY) > Q.height){
+            //console.log("pass a object, resist is:"+this.p.isResist+",leader:"+Q.leader.p.movedY+", this movedY:"+this.p.movedY);
+            
+            var newMovedY = Q.leader.p.movedY - (Q.height +  1000* Math.random());
+            var xgap = Q.width - this.p.w;
+            //console.log("pass a object, resist is:"+this.p.isResist+",leader:"+Q.leader.p.movedY+", this movedY:"+this.p.movedY+"new moved:"+newMovedY);
+            this.p.property.movedY = newMovedY;
+            this.p.property.x = xgap * Math.random();
+            this.p.property.isResist = this.p.isResist;
+            
+            //var resistAgin = new Q.ResistSprite(this.p.property);
+            //this.parent.insert(resistAgin);
+            this.parent.remove(this);
+          }
+        },
+        draw:function(ctx){
+          this._super(ctx);
+        }
+      });
+
+      
+      Q.Ship = Q.CenterSprite.extend({
+        resistDuration:0,
+        resistForce:0.5,
+        step: function(dt) {
+          //if(Q.inputs['left'] || Q.inputs['right'] || Q.inputs['fire']){
+            //this.p.gravity = 20;
+          //}
+          if(!this.p.stepCount){
+              this.p.stepCount = 0;  
+          }
+          this.p.stepCount++; 
+
+          if(this.dead) return;
+          var p = this.p;
+          // Set our horizontal force
+          p.fx = 0;
+          p.vx = p.vx * .9;
+          if(Q.inputs['left']) { p.fx -= p.thrustX; p.vx = -p.thrustX; }
+          if(Q.inputs['right']) { p.fx += p.thrustX; p.vx = p.thrustX; }
+          // Set our vertical force
+          if(Q.inputs['fire'] || Q.inputs['up']){
+              p.fy = -p.thrustY/2.0;
+              p.asset = p.thrustStateImage;
+             }else if(Q.inputs['down']){
+              p.fy = p.thrustY/4.0;
+              p.asset = p.thrustStateImage;
+            }else {
+              p.fy = 0;
+              p.asset = p.normalStateImage;
+           }
+
+          // Calculate our y and x acceleration
+          //I am have idea of ax and ay.
+          var resistAce = 0;
+          p.resistDuration --;
+          if(p.resistDuration <0){
+            p.resistDuration = 0;
+          }else{
+            resistAce = p.resistForce;
+          }
+          p.ay = p.gravity + p.fy / p.m - resistAce * p.vy;
+          p.ax = p.fx / p.m;
+          //Hand free
+          p.ay = 0;
+          p.vy = -120 - 100 * Math.abs(p.movedY)/Q.endHeight + resistAce * p.vy * p.resistDuration/60; 
+          p.ax = 0;
+          this._super(dt);
+          //console.log("ship p.vy:"+p.vy);
+
+          var height = Math.floor(-p.movedY);
+          height -= height % 3;
+          Q.titleScreen.p.subTitle = "当前高度:"+  height * multipleRatio;
+          if(this.p.stepCount % 30 == 0){
+            var passedTime = Math.floor((new Date().getTime() - Q.gameStartTime)/1000);
+            Q.titleScreen.p.thirdTitle = "当前耗时:"+passedTime+"秒";
+          }
+          var col;
+          if(col = this.checkCollision()) {
+            if(col == 1) {
+            } else if(col == 2){
+              this.parent.insert(new Q.Explosion(p.x,p.y,p.vx,p.vy,this.imageData));
+              this.parent.remove(this);
+              this.dead=true;
+              //showCrash();
+            }
+          }
+
+          // Force our lander to stay in our box 
+          // and zero out our velocity when we hit a wall
+          if(p.y < 0) { 
+              Q.currentStage = Q.stageMaps[Q.currentStage];
+              Q.stageScene(Q.currentStage);
+            }
+          if(p.y > Q.height- p.h) { p.y = Q.height - p.h; p.vy = 0; }
+          if(p.x < 0) { p.x = 0; p.vx = 0; }
+          if(p.x > Q.width - p.w) {
+              p.x = Q.width - p.w;
+              p.vx = 0;
+           }
+        },
+        checkCollision: function(){
+          if(this.p.isCrashed){
+            return 2;
+          }
+          return 1;
+        },
+        checkCollisionOld: function() {
+          var bgData = Q.backgroundPixels;
+          // Get a integer based position from our
+          // x and y values
+          var bgx = Math.floor(this.p.x);
+          var bgy = Math.floor(this.p.y);
+          // Calculate the initial offset into our background
+          var bgOffset = bgx * 4 + bgy * bgData.width * 4 + 3;
+
+          // Pull out our data easy access
+          var pixels = this.imageData.data;
+          var bgPixels = bgData.data;
+
+          for(var sy=0;sy < this.imageData.height;sy++) {
+            for(var sx=0;sx < this.imageData.width;sx++) {
+              // Check for an existing pixel on our ship
+              if(pixels[sx*4 + sy * this.imageData.width * 4 + 3]) {
+
+                // Then check for a matching existing pixel on the background
+                // starting from our bgOffest and then indexing in from there
+                if(bgPixels[bgOffset + sx*4 + sy * bgData.width * 4]) {
+
+                  // Next check if we are at the bottom of the lander
+                  // if so return 1, to indicate that we might be landing
+                  // instead of crashing
+                  if(sy > this.imageData.height - 2) {
+                    return 1;
+                    } else {
+                    // Otherwise return 2 and...Boom!
+                    return 2;
+                  }
+                }
+              }
+            }
+          }
+          return 0;
+        }
+
+      });
+
+      Q.Explosion = Q.GameObject.extend({
+        init: function(x,y,vx,vy,imgData) {
+
+          // Set up a container for our pixels
+          this.particles = []
+
+          // Grab the lander's image data
+          var landerData = imgData.data;
+
+
+          // Create a 3x3 pixel-data 
+          // image data container to use for blitting down the road
+          this.pixelData = Q.ctx.createImageData(3,3);
+          this.drawPixel = this.pixelData.data; 
+
+          // Pixels are going to be exploding out from 
+          // the center of the lander
+          var imgWidth = imgData.width;
+          var imgHeight = imgData.height;
+          var centerX = imgWidth / 2;
+          var centerY = imgHeight / 2;
+
+          // Loop over each fourth pixel of the lander image
+          for(var sy=0;sy < imgData.height;sy+=4) {
+            for(var sx=0;sx < imgData.width;sx+=4) {
+
+              // Offset into the 1 dimension pixel data array
+              var loc = sx*4 + sy * imgData.width * 4;
+
+              // If theres a lander pixel here
+              if(landerData[loc + 3]) {
+
+                // Get the direction of the pixel from center
+                var distX = sx - centerX;
+                var distY = sy - centerY;
+
+                // Add a new particle
+                this.particles.push({
+                  x: x + sx,  // starting position x
+                  y: y + sy,  // starting position y
+                  lifetime: 5,  // remaining lifetime
+                  r: landerData[loc] + 20,  // make it a little redder
+                  g: landerData[loc+1],
+                  b: landerData[loc+2],
+                  a: landerData[loc+3],
+                  // For particle velocity, use the ships velocity,
+                  // plus a random direction emanating from the center of the ship
+                  vx: vx/6 +  distX * 5 *(Math.random()+0.5), 
+                  vy: vy/6 + distY * 5 * (Math.random()+0.5)
+                });
+              }
+            }
+          }
+        },
+
+        step: function(dt) {
+
+          var bgData = Q.backgroundPixels;
+          var pixels = bgData.data;
+
+          for(var i =0,len=this.particles.length;i<len;i++) {
+            var v = this.particles[i];
+            if(v.lifetime > 0) {
+
+              var oldx = v.x, oldy = v.y;
+              v.vy += 20 * dt;
+              v.x += dt * v.vx;
+              v.y += dt * v.vy;
+              var loc = Math.floor(v.x)*4 + Math.floor(v.y) * bgData.width * 4;
+              if(pixels[loc + 3]) {
+                v.x = oldx;
+                v.y = oldy;
+                v.vy *= -0.2;
+                v.vx *= -0.2;
+              }
+              v.lifetime -= dt;
+            }
+            if(v.lifetime <= 0) { 
+
+              //Q.stageScene(Q.currentStage); 
+              showCrash();
+              return; }
+          }
+
+        },
+        draw: function(ctx) {
+          for(var i=0,len=this.particles.length;i<len;i++) {
+            var v = this.particles[i];
+
+            if(v.lifetime > 0) {
+              for(var l=0;l<36;l+=4) {
+                this.drawPixel[l+0] = v.r;
+                this.drawPixel[l+1] = v.g;
+                this.drawPixel[l+2] = v.b;
+                this.drawPixel[l+3] = v.a;
+              }
+
+              ctx.putImageData(this.pixelData,v.x,v.y);
+            }
+          }
+
+        }
+      });
+
+      Q.load(['plane.png','cloud1.png','plane_fly.png','plane_still.png','ball_explosion.png','cloud2.png', 'cloud3.png','background.mp3','stone3.png','stone2.png', 'bottom.png','ball.png','backgroundv1.png','mapv4.png'], function() {
+        Q.height = window.innerHeight;
+        //Q.width = window.innerWidth;
+        enhanceContext(Q.ctx, window.innerHeight, Q.width);
+        console.log('current height is:'+ Q.height);
+        Q.audio.enableMobileSound();
+        //Q.audio.start();
+
+        Q.StepLogic = Q.Sprite.extend({
+          init:function(props){
+              this._super(_({
+                 winningStepCount:200,
+                 winning:false,
+              }).extend(props));
+              this.p.prevHeight = 0;
+          },
+          step:function(dt){
+              if(Q.stopAtStart){
+                Q.stopAtStart = false;
+                Q.pauseGame();
+              }
+              var height = Math.abs(Q.leader.p.movedY);
+              if(height > (Q.endHeight - Q.height)){
+                //Q.leader.p.gravity = 0;
+                //Q.leader.p.vx = 0;
+                //Q.leader.p.vy = 0;
+                if(!this.p.plane){
+                  //this.p.forkedPlane = true;
+                  this.p.stepCount = Q.leader.p.stepCount;
+                  var plane = new Q.MovingSprite({asset:"plane_still.png", x:Q.width/2.0, y:-110, movedY:-Q.endHeight-100, movedX:100});
+                  this.parent.insert(plane);
+                  this.p.plane = plane;
+                  Q.leader.p.vy = -30;
+                }else{
+                  //Q.leader.p.vy = Q.leader.p.vy * 0.99;
+
+                  //if(Q.leader.p.vy > -30){
+                  //  Q.leader.p.vy =-30;
+                  //}
+                  if(this.p.plane.p.y < 150){
+                    this.p.plane.p.y += 1;
+                  }
+                  if(height > Q.endHeight && !this.p.winning){
+                     //Q.leader.p.vy =
+                     //Q.pauseGame();
+                     Q.leader.p.gravity = -20;
+                     this.p.plane.p.asset = "plane_fly.png"
+                     this.p.plane.p.ay = -60;
+                     this.p.winning = true;
+                  }
+                }
+                if(this.p.winning){
+                  this.p.winningStepCount --;
+                  if(this.p.winningStepCount < 0){
+                    //$('.introduce').innerHTML = 
+                    $('.gameoverlay').show();
+                    Q.pauseGame();
+                    var passedTime = Math.floor((new Date().getTime() - Q.gameStartTime)/1000);
+                    document.title = "我用“"+passedTime+"”秒与哥伦比亚成功对接！你敢挑战吗？";
+                    document.getElementById('introduce').innerHTML ="你用“"+passedTime+"”秒与哥伦比亚对接，打败了70%的人。";
+                    $('.bottomInfo').show();
+                    $('#follow').show();
+                    $('#share').show();
+                    $('#restart').show();
+                    $('#begin').hide();
+                  }
+                }
+
+              }else{
+                  if((Q.leader.p.stepCount % 91)== 0 && Math.random()>0.8){
+                    var gap = this.p.prevHeight - Q.leader.p.movedY;
+                    if(gap < Q.height){
+                      return;
+                    }
+                    var stoneName = 'stone'+(Math.random()>0.5?3:2)+'.png'
+                    console.log('create a bomb:'+ stoneName);
+                    var bomb = new Q.ResistSprite({asset:stoneName, x:Math.floor(Math.random()*(Q.width-60)), y:0, movedY:Q.leader.p.movedY - Q.height, movedX:100, isResist:false});
+                    this.parent.insert(bomb);
+                  }
+
+                  if((Q.leader.p.stepCount % 23) == 0 && Math.random() > 0.4){
+                      var rand = Math.random();
+                      var count = rand < 0.33?1:(rand < 0.66?2:3);
+
+                      var collid1 = new Q.ResistSprite({asset:"cloud"+count+".png", x:Math.floor(Math.random()*(Q.width-80)), y:0, movedY:Q.leader.p.movedY - Q.height, movedX:100, removePassed:false, resistForce:0.6, resistDuration:80, isResist:true});
+                      this.parent.insert(collid1);
+                  }
+
+              }
+          },
+          draw:function(ctx){
+
+          }
+        });
+        Q.stopAtStart = true;
+        Q.scene("level1",new Q.Scene(function(stage) {
+          //stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
+          //stage.insert(new Q.Sprite({ asset: "mapv4.png" }));
+          //var movingBack = new Q.MovingBackground({ asset: "star_back.png" });
+         
+          var starBack = new Q.StarSprite({z:-100}); 
+          stage.insert(starBack);
+
+          //var addMan = new Q.StaticFollowSprite({ x:0, y:0, z:3, sheet:'man', movedY:-800, movedX:100});
+          var ground = new Q.StaticFollowSprite({asset:"bottom.png", x:0, y:180, movedY:35, movedX:0, removePassed:false, z:-99});
+
+          Q.resizeListeners.push(function(changed){
+              //ground.p.movedY = 
+              //console.log('size changed:'+changed.height);
+              ground.p.y = changed.height - ground.p.h;
+              var gap = ground.p.y - Q.leader.p.centerY;
+              ground.p.movedY = gap;
+          });
+
+          var logic = new Q.StepLogic({});
+          //var staticBall = new Q.StaticFollowSprite({asset:'ball.png', x:200, y:30, movedY:40, movedX:120, removePassed:true});
+
+          //console.log('loaded ball width:'+staticBall.p.w+', ground:'+ground.p.w);
+          Q.titleScreen = new Q.TitleScreen({title:'目标高度:'+(targetHeight * multipleRatio) , z:0});
+          
+          stage.insert(ground);
+          //stage.insert(staticBall);
+          stage.insert(Q.titleScreen);
+          stage.insert(logic);
+          //stage.insert(addMan);
+          debug("innerHeight:"+Q.height+", height:"+Q.innerHeight);
+          var ship = stage.insert(new Q.Ship({
+            asset: 'ball.png',
+            normalStateImage:'ball.png',
+            thrustStateImage:'ball.png',
+            x:       145, // X Position
+            y:       (Q.height)/2.0, // Y Position
+            centerY: (Q.height)/2.0,
+            gravity: 20,  // Gravity
+            m:       1,   // Ship’s Mass
+            thrustX: 160,  // Horizontal Thrust
+            thrustY: 80,  // Vertical Thrust    
+            //background: movingBack,
+            movedX: 0,
+            movedY: 0,
+            resistDuration:0,
+            resistForce:0
+          }));
+          Q.leader = ship;
+          Q.endHeight = targetHeight;
+          //ship.p.background = movingBack;
+          //console.log('ship.p.background:'+ ship.p.background+", movingBack:"+movingBack+", initial movedY:"+ship.p.movedY);
+          Q.backgroundPixels = Q.imageData(Q.asset('mapv4.png'));
+          ship.imageData = Q.imageData(Q.asset('ball_explosion.png'));
+          
+          //Set the bottom to ship distance
+          //var gap = ship.p.y - ground.p.y;
+          //ground.p.movedY = -gap; 
+          console.log('size changed:'+window.innerHeight);
+          ground.p.y = window.innerHeight - ground.p.h;
+          var gap = ground.p.y - Q.leader.p.centerY;
+          ground.p.movedY = gap;
+        }));
+        
+
+
+
+        //Q.stageMaps = {'level':'level1','level1':'level2', 'level2':'level3', 'level3':'level4',"level4":"level"};
+        Q.currentStage = "level1";
+        Q.stageScene("level1");
+        //Q.pauseGame();
+        Q.gameStartTime = new Date().getTime();
+        console.log('start time is:'+Q.gameStartTime);
+
+      });
+    </script>
+  </body>
+</html>

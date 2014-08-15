@@ -342,11 +342,11 @@
         //dr.innerHTML = info;
       }
        
-      function enhanceContext(context, innertHeight) {
+      function enhanceContext(context, innertHeight, innerWidth) {
           innertHeight = innertHeight;
           var canvas = document.getElementById('quintus');
           var ratio = Q.pixelRatio;
-          var width = canvas.width;
+          var width = innerWidth;
           var height = innerHeight;
           canvas.width = width * ratio;
           canvas.height = height * ratio;
@@ -364,8 +364,9 @@
             return collided;
       };
       Q.height = window.innerHeight;
+      //Q.width = window.innerWidth;
       //var canvas = document.getElementById('quintus');
-      enhanceContext(Q.ctx, window.innerHeight);
+      enhanceContext(Q.ctx, window.innerHeight, Q.width);
       Q.controls(Q);
 
       $(window).resize(function() {
@@ -373,7 +374,8 @@
         //var canvas = document.getElementById('quintus');
         //canvas.height = window.innerHeight;
         Q.height = window.innerHeight;
-        enhanceContext(Q.ctx, window.innerHeight);
+        //Q.width = window.innerWidth;
+        enhanceContext(Q.ctx, window.innerHeight, Q.width);
         console.log('resize inner height:'+window.innerHeight+", Q height:"+Q.height);
         for(var i = 0; i <　Q.resizeListeners.length; i++){
           Q.resizeListeners[i]({width:window.innerWidth, height:window.innerHeight});
@@ -386,7 +388,8 @@
         this._super(_({
           resistForce:0.5,
           resistDuration:30,
-          isResist:true
+          isResist:true,
+          z:10
         }).extend(props));
           this.p.property = props;
         },
@@ -665,7 +668,8 @@
 
       Q.load(['plane.png','cloud1.png','plane_fly.png','plane_still.png','ball_explosion.png','cloud2.png', 'cloud3.png','background.mp3','stone3.png','stone2.png', 'bottom.png','ball.png','backgroundv1.png','mapv4.png'], function() {
         Q.height = window.innerHeight;
-        enhanceContext(Q.ctx, window.innerHeight);
+        //Q.width = window.innerWidth;
+        enhanceContext(Q.ctx, window.innerHeight, Q.width);
         console.log('current height is:'+ Q.height);
         Q.audio.enableMobileSound();
         //Q.audio.start();
@@ -738,7 +742,7 @@
                     }
                     var stoneName = 'stone'+(Math.random()>0.5?3:2)+'.png'
                     console.log('create a bomb:'+ stoneName);
-                    var bomb = new Q.ResistSprite({asset:stoneName, x:Math.random()*(Q.width-60), y:0, movedY:Q.leader.p.movedY - Q.height, movedX:100, isResist:false});
+                    var bomb = new Q.ResistSprite({asset:stoneName, x:Math.floor(Math.random()*(Q.width-60)), y:0, movedY:Q.leader.p.movedY - Q.height, movedX:100, isResist:false});
                     this.parent.insert(bomb);
                   }
 
@@ -746,7 +750,7 @@
                       var rand = Math.random();
                       var count = rand < 0.33?1:(rand < 0.66?2:3);
 
-                      var collid1 = new Q.ResistSprite({asset:"cloud"+count+".png", x:Math.random()*(Q.width-80), y:0, movedY:Q.leader.p.movedY - Q.height, movedX:100, removePassed:false, resistForce:0.6, resistDuration:80, isResist:true});
+                      var collid1 = new Q.ResistSprite({asset:"cloud"+count+".png", x:Math.floor(Math.random()*(Q.width-80)), y:0, movedY:Q.leader.p.movedY - Q.height, movedX:100, removePassed:false, resistForce:0.6, resistDuration:80, isResist:true});
                       this.parent.insert(collid1);
                   }
 
@@ -762,15 +766,15 @@
           //stage.insert(new Q.Sprite({ asset: "mapv4.png" }));
           //var movingBack = new Q.MovingBackground({ asset: "star_back.png" });
          
-          var starBack = new Q.StarSprite({}); 
+          var starBack = new Q.StarSprite({z:-100}); 
           stage.insert(starBack);
 
           //var addMan = new Q.StaticFollowSprite({ x:0, y:0, z:3, sheet:'man', movedY:-800, movedX:100});
-          var ground = new Q.StaticFollowSprite({asset:"bottom.png", x:0, y:180, movedY:35, movedX:0, removePassed:false});
+          var ground = new Q.StaticFollowSprite({asset:"bottom.png", x:0, y:180, movedY:35, movedX:0, removePassed:false, z:-99});
 
           Q.resizeListeners.push(function(changed){
               //ground.p.movedY = 
-              console.log('size changed:'+changed.height);
+              //console.log('size changed:'+changed.height);
               ground.p.y = changed.height - ground.p.h;
               var gap = ground.p.y - Q.leader.p.centerY;
               ground.p.movedY = gap;
@@ -782,25 +786,6 @@
           //console.log('loaded ball width:'+staticBall.p.w+', ground:'+ground.p.w);
           Q.titleScreen = new Q.TitleScreen({title:'目标高度:'+(targetHeight * multipleRatio) , z:0});
           
-          /**
-          var collid1 = new Q.ResistSprite({asset:"cloud2.png", x:Math.random()*(Q.width-80), y:0, movedY:-1400, movedX:100, removePassed:false, resistForce:0.6, resistDuration:80, isResist:true});
-          stage.insert(collid1);
-
-          var collid1 = new Q.ResistSprite({asset:"cloud1.png", x:Math.random()*(Q.width-80), y:0, movedY:-1300, movedX:100, removePassed:false, resistForce:0.6, resistDuration:80, isResist:true});
-          stage.insert(collid1);
-
-          var collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-1200, movedX:100, removePassed:false, resistForce:0.6, resistDuration:80, isResist:true});
-          stage.insert(collid1);
-
-          collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-500, movedX:100, removePassed:false, resistForce:0.6, resistDuration:80, isResist:true});
-          stage.insert(collid1);
-
-          collid1 = new Q.ResistSprite({asset:"cloud3.png", x:Math.random()*(Q.width-80), y:0, movedY:-600, movedX:100, removePassed:false, resistForce:0.6, resistDuration:80, isResist:true});
-          stage.insert(collid1);
-
-          
-          stage.insert(collid1);
-          **/
           stage.insert(ground);
           //stage.insert(staticBall);
           stage.insert(Q.titleScreen);

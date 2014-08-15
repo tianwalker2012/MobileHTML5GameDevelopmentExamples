@@ -11,6 +11,7 @@
     <script src='js/quintus_scenes.js'></script>
     <script src='js/quintus_anim.js'></script>
     <script src='js/quintus_audio.js?3'></script>
+    <script src='/columbia/total'></script>
     <!--<meta name="viewport" content="width=320, user-scalable=no"> -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name=apple-mobile-web-app-capable content=yes>
@@ -175,7 +176,7 @@
        
       <div class='title'><h3>哥伦比亚太空计划</h3></div>   
       <div class='introduce' id='introduce'>
-         哥伦比亚号在4万米高空召唤你，已有23万人与它成功对接。你敢挑战么？
+         哥伦比亚号在4万米高空召唤你，已有<span id='counter'>27358</span>人与它成功对接。你敢挑战么？
       </div>
       <div class='bottomInfo'>
         2014年，大悲乐队将携手自由联合，带着所有人的梦想，飞入太空。
@@ -198,6 +199,8 @@
           var a = document.createElement('audio');
           return !!(a && a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
       } 
+
+
       var targetHeight = 8000;
       var multipleRatio = 5;
        var Q = Quintus()
@@ -212,6 +215,16 @@
       console.log('music object:'+myMusic+", src:"+myMusic.src);
       Q.myMusic = myMusic;
       Q.pixelRatio = window.devicePixelRatio || 1;
+      //Q.totalPerson = 10000;
+      //alert(hist);
+      /**
+      $.getJSON("/columbia/total",{},function(result){
+          //alert(result);
+          Q.totalPerson = 10000 + result;
+          //alert(Q.totalPerson);
+          $('#counter').innerHTML = ""+Q.totalPerson;
+      });
+**/
       if(!iOS){
         Q.pixelRatio = 1;
       }
@@ -249,9 +262,8 @@
             //alert("support audio:"+supportsAudio());
             //var allbuttons = $('.button');
             console.log('document loaded');
-            //$('.button').hide();
-            //$('#begin').show();
-            //$('#follow').show();
+            var curTotal = totalPerson?(27358+totalPerson):27358;
+            document.getElementById('counter').innerHTML = curTotal;
             $('#begin').get(0).touchEnd = function(el){
               //alert('touch end get called');
               Q.unpauseGame();
@@ -328,7 +340,11 @@
       function showCrash(){
         Q.pauseGame();
         var passedTime = Math.floor((new Date().getTime() - Q.gameStartTime)/1000);
-        document.title = "我离哥伦比亚号只有“"+ Math.floor(Math.abs(Q.endHeight + Q.leader.p.movedY) * multipleRatio)+"”米！你行么！";
+        var meter = Math.floor(Math.abs(Q.endHeight + Q.leader.p.movedY) * multipleRatio);
+        document.title = "我离哥伦比亚号只有“"+ meter +"”米！你行么！";
+         $.getJSON("/columbia/upload?meter="+meter,{},function(result){
+            //alert('result:'+result);  
+        });
         $('.gameoverlay').show();
         $('.bottomInfo').show();
         document.getElementById('introduce').innerHTML = "啊哦,你离哥伦比亚号只有“"+Math.floor((Math.abs(Q.endHeight + Q.leader.p.movedY) * multipleRatio)) +"”米了。";
@@ -720,12 +736,27 @@
                 if(this.p.winning){
                   this.p.winningStepCount --;
                   if(this.p.winningStepCount < 0){
+
                     //$('.introduce').innerHTML = 
                     $('.gameoverlay').show();
                     Q.pauseGame();
                     var passedTime = Math.floor((new Date().getTime() - Q.gameStartTime)/1000);
+                     $.getJSON('/columbia/upload?time='+passedTime, {}, function(result){
+                        //alert('upload result:'+result);
+                     });
                     document.title = "我用“"+passedTime+"”秒与哥伦比亚成功对接！你敢挑战吗？";
-                    document.getElementById('introduce').innerHTML ="你用“"+passedTime+"”秒与哥伦比亚对接，打败了70%的人。";
+                    var totalCount = 1;
+                    var beatCount = 1;
+                    for(var key in hist){
+                      if(key > passedTime){
+                        totalCount += hist[key];
+                        beatCount += hist[key];
+                      }else{
+                        totalCount += hist[key];
+                      }
+                    }
+                    var beatPercent = Math.floor(100 * beatCount / totalCount);
+                    document.getElementById('introduce').innerHTML ="你用“"+passedTime+"”秒与哥伦比亚对接，打败了"+beatPercent+"%的人。";
                     $('.bottomInfo').show();
                     $('#follow').show();
                     $('#share').show();

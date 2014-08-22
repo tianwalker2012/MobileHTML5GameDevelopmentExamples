@@ -525,8 +525,8 @@
           // Force our lander to stay in our box 
           // and zero out our velocity when we hit a wall
           if(p.y < 0) { 
-              //Q.currentStage = Q.stageMaps[Q.currentStage];
-              //Q.stageScene(Q.currentStage);
+              Q.currentStage = Q.stageMaps[Q.currentStage];
+              Q.stageScene(Q.currentStage);
             }
           if(p.y > Q.height- p.h) { p.y = Q.height - p.h; p.vy = 0; }
           if(p.x < 0) { p.x = 0; p.vx = 0; }
@@ -815,7 +815,7 @@
           stage.insert(starBack);
 
           //var addMan = new Q.StaticFollowSprite({ x:0, y:0, z:3, sheet:'man', movedY:-800, movedX:100});
-          var ground = new Q.StaticFollowSprite({asset:"bottom.png", x:0, y:180, movedY:0, movedX:0, removePassed:false, z:-10});
+          var ground = new Q.StaticFollowSprite({asset:"bottom.png", x:0, y:180, movedY:35, movedX:0, removePassed:false, z:-100});
 
           Q.resizeListeners.push(function(changed){
               //ground.p.movedY = 
@@ -842,8 +842,7 @@
             normalStateImage:'ball.png',
             thrustStateImage:'ball.png',
             x:       145, // X Position
-            y:       Q.height - 110, // Y Position
-            //targetY: (Q.height)/2.0,
+            y:       (Q.height)/2.0, // Y Position
             centerY: (Q.height)/2.0,
             gravity: 20,  // Gravity
             m:       1,   // Ship’s Mass

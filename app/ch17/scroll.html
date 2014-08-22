@@ -8,7 +8,7 @@
     <script src='js/quintus.js'></script>
     <script src='js/quintus_input.js?7'></script>
     <script src='js/quintus_sprites.js?4'></script>
-    <script src='js/quintus_scenes.js'></script>
+    <script src='js/quintus_scenes.js?3'></script>
     <script src='js/quintus_anim.js'></script>
     <script src='js/quintus_audio.js?3'></script>
     <script src='/columbia/total'></script>
@@ -422,28 +422,31 @@
 
               //showCrash();
             }
-            var newMovedY = Q.leader.p.movedY - (Q.height +  1000* Math.random());
-            var xgap = Q.width - this.p.w;
-            this.p.property.x = xgap * Math.random();
-            this.p.property.movedY = newMovedY; 
-            this.p.property.isResist = this.p.isResist;
+            //var newMovedY = Q.leader.p.movedY - (Q.height +  1000* Math.random());
+            //var xgap = Q.width - this.p.w;
+            //this.p.property.x = xgap * Math.random();
+            //this.p.property.movedY = newMovedY; 
+            //this.p.property.isResist = this.p.isResist;
             //console.log("will new a object, resist is:"+this.p.isResist);
             //var resistAgin = new Q.ResistSprite(this.p.property);
             //this.parent.insert(resistAgin);
             this.parent.remove(this);
+            console.log('item crash length:'+this.parent.items.length);
           }else if((this.p.movedY - Q.leader.p.movedY) > Q.height){
             //console.log("pass a object, resist is:"+this.p.isResist+",leader:"+Q.leader.p.movedY+", this movedY:"+this.p.movedY);
             
             var newMovedY = Q.leader.p.movedY - (Q.height +  1000* Math.random());
-            var xgap = Q.width - this.p.w;
+            //var xgap = Q.width - this.p.w;
             //console.log("pass a object, resist is:"+this.p.isResist+",leader:"+Q.leader.p.movedY+", this movedY:"+this.p.movedY+"new moved:"+newMovedY);
-            this.p.property.movedY = newMovedY;
-            this.p.property.x = xgap * Math.random();
-            this.p.property.isResist = this.p.isResist;
+            //this.p.property.movedY = newMovedY;
+            //this.p.property.x = xgap * Math.random();
+            //this.p.property.isResist = this.p.isResist;
             
             //var resistAgin = new Q.ResistSprite(this.p.property);
             //this.parent.insert(resistAgin);
+
             this.parent.remove(this);
+            console.log('remove Item length:'+this.parent.items.length);
           }
         },
         draw:function(ctx){
@@ -796,12 +799,23 @@
           //stage.insert(new Q.Sprite({ asset: "backgroundv1.png" }));
           //stage.insert(new Q.Sprite({ asset: "mapv4.png" }));
           //var movingBack = new Q.MovingBackground({ asset: "star_back.png" });
-         
-          var starBack = new Q.StarSprite({z:-100}); 
+          stage.options.sort = function(a,b) {
+            if(!a.p){
+              a.p = {};
+              //return -1;
+            } 
+            if(!b.p){
+              b.p = {};
+              //return 1;
+            }
+            a.p.z = a.p.z || 0;
+            b.p.z = b.p.z || 0;
+            return a.p.z - b.p.z; };
+          var starBack = new Q.StarSprite({z:-99}); 
           stage.insert(starBack);
 
           //var addMan = new Q.StaticFollowSprite({ x:0, y:0, z:3, sheet:'man', movedY:-800, movedX:100});
-          var ground = new Q.StaticFollowSprite({asset:"bottom.png", x:0, y:180, movedY:35, movedX:0, removePassed:false, z:-99});
+          var ground = new Q.StaticFollowSprite({asset:"bottom.png", x:0, y:180, movedY:35, movedX:0, removePassed:false, z:-100});
 
           Q.resizeListeners.push(function(changed){
               //ground.p.movedY = 

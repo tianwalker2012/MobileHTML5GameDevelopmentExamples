@@ -132,7 +132,9 @@ Quintus.Scenes = function(Q) {
     },
 
     draw: function(ctx) {
+      //console.log('draw called');
       if(this.options.sort) {
+        //console.log('sort get called');
         this.items.sort(this.options.sort);
       }
       this.trigger("predraw",ctx);

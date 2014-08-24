@@ -1,0 +1,117 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name=apple-mobile-web-app-capable content=yes>
+  <meta name=apple-mobile-web-app-status-bar-style content=black>
+  <link rel="icon" type="image/png" href="images/icon.png" />
+  <link rel="shortcut icon" href="images/icon.png">
+  <link rel="apple-touch-icon image_src" href="images/icon.png">
+  <div id='wx_pic' style='margin:0 auto;display:none;'>
+      <img src='images/icon.jpg' />
+  </div>
+  <script src='js/jquery.min.js'></script>
+     <style>
+      body { padding:0px; margin:0px; background-color:#000; }
+      #mycanvas { background-color:#1e7572; }
+      </style>
+</head>
+
+  
+<body>
+<canvas id="mycanvas", width="600" height="400"></canvas>
+  <script>
+    var Q = {};
+    Q.pixelRatio = window.devicePixelRatio || 1;
+
+     $(document).ready(function(){
+    var canvas = $("#mycanvas")[0],
+        ctx = canvas.getContext("2d");
+
+        //width = canvas.width,
+        //height = canvas.height;
+    width = window.innerWidth;
+    height = window.innerHeight;
+    ctx.strokeStyle = "#FFF";
+    ctx.fillStyle = "#FFF";
+
+    var curves = [];
+    function enhanceContext(canvas, context, innertHeight, innerWidth) {
+          innertHeight = innertHeight;
+          //var canvas = document.getElementById('quintus');
+          var ratio = Q.pixelRatio;
+          var width = innerWidth;
+          var height = innerHeight;
+          canvas.width = width * ratio;
+          canvas.height = height * ratio;
+          canvas.style.width = width + "px";
+          canvas.style.height = height + "px";
+          context.scale(ratio, ratio);
+      } 
+      enhanceContext(canvas, ctx, width, height);
+      $(window).resize(function() {
+        enhanceContext(canvas, ctx, window.innerHeight, window.innerWidth);
+        console.log('resize inner height:'+window.innerHeight+", Q height:"+Q.height);
+      });
+
+    function drawAll(lines){
+      console.log("total lines:"+lines.length+", value:"+(lines.length?lines[lines.length - 1]:0));
+      for(var i = 0; i < lines.length; i++){
+        var ln = lines[i];
+        console.log('x:'+ ln.x +",y:"+ln.y);
+        ctx.closePath();
+        ctx.beginPath();
+        ctx.moveTo(550, 200);
+        ctx.lineTo(ln.x, ln.y);
+        ctx.lineTo(50, 200);
+        ctx.quadraticCurveTo(ln.x, ln.y, 550, 200);
+        ctx.stroke();
+      }
+    }
+    function drawBeizer(cx,cy) {
+      var x0 = 50,
+          y0 = 200,
+          x1 = 550,
+          y1 = 200;
+
+
+      ctx.clearRect(0,0,600,400);
+      ctx.beginPath();
+      ctx.moveTo(x1,y1);
+      ctx.lineTo(cx,cy);
+      ctx.lineTo(x0,y0);
+
+      ctx.quadraticCurveTo(cx,cy,x1,y1);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(cx,cy,5,0,Math.PI*2);
+      ctx.fill();
+      drawAll(curves);
+    }
+    function getCursorPosition(e) {
+      var canvasPos = canvas.getBoundingClientRect();
+    return {
+
+        x: e.clientX - canvasPos.left,
+        y: e.clientY - canvasPos.top
+    };
+    }
+    $(canvas).on("mousemove touchmove",function(e) {
+      //drawBeizer(e.pageX,e.pageY);
+    });
+
+    $(canvas).on("mousedown touchstart", function(e) {
+        console.log('store axis');
+        //curves.push({"x":e.pageX, "y":e.pageY});
+    });
+    });
+        
+
+  </script>
+</body>
+</html>
+
+
+

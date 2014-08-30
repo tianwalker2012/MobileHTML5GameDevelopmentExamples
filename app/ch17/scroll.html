@@ -124,6 +124,9 @@
         bottom: 70%;
         width: 100%;
         background-color: rgba(100, 100, 100, 0.0);
+        z-index: 100;
+        height: 41px;
+        
       }
 
        .buttonBottomRegion{
@@ -131,6 +134,8 @@
           bottom: 15%;
           width:100%;
           background-color: rgba(100, 100, 100, 0.0);
+          z-index: 100;
+          height: 41px;
        }
 
        .buttonLeft{
@@ -180,7 +185,7 @@
        
       <div class='title'><h3>哥伦比亚太空计划</h3></div>   
       <div class='introduce' id='introduce'>
-         哥伦比亚号在4万米高空召唤你，已有<span id='counter'>27358</span>人与它成功对接。你敢挑战么？
+         哥伦比亚号在4万米高空召唤你，已有<span id='counter'>27358</span>人与它成功对接。你敢挑战么？可用键盘的方向键，或触摸屏幕控制气球
       </div>
       <div class='bottomInfo'>
         2014年，大悲乐队将携手自由联合，带着所有人的梦想，飞入太空。
@@ -268,7 +273,7 @@
             console.log('document loaded');
             var curTotal = totalPerson?(27358+totalPerson):27358;
             document.getElementById('counter').innerHTML = curTotal;
-            $('#begin').get(0).touchEnd = function(el){
+            var startFn = function(el){
               //alert('touch end get called');
               Q.unpauseGame();
               Q.stopAtStart = false;
@@ -280,14 +285,16 @@
               //document.getElementsByTagName('audio')[0].pause();
             };
 
+            //$('#begin').get(0).touchEnd = startFn;
+            $('#begin').on('click touchend', startFn); //click(startFn);
 
             var onfollow = function(el){
                 document.location.href = 'http://mp.weixin.qq.com/s?__biz=MjM5Njc5Njg1Mw==&mid=200691257&idx=1&sn=b7195c7c440fd3ff37d685b6c7440e9b&scene=100';
                 //document.location.href = 'http://pozi.be/columbia?ra=245358';
                 //$('.gameoverlay').hide();
             }
-            $('#follow').get(0).touchEnd = onfollow;
-            //$('#follow').get(0).on('click', onfollow);
+            $('#follow').on('touchend click',onfollow);
+            //$('#follow').click(onfollow);
 
             var onrestart = function(el){
                 console.log('restart get called');
@@ -298,54 +305,19 @@
                 $('.gameoverlay').hide();
                 $('.shareoverlay').hide();
             };
-            $('#restart').get(0).touchEnd = onrestart;
-            //$('#restart').get(0).on('click', onrestart);
+            $('#restart').on('touchend click'. onrestart);
+            //$('#restart').click(onrestart);
 
             var onshare = function(el){
               //alert('share clicked');
               $('.shareoverlay').show();
             };
-            $('#share').get(0).touchEnd = onshare;
-            //$('#share').on('click', onshare);
+            //$('#share').get(0).touchEnd = onshare;
+            $('#share').on('click touchend',onshare);
             $('#begin').show();
-            $('.shareoverlay').on('touchend', function(e){
+            $('.shareoverlay').on('touchend click', function(e){
                 $('.shareoverlay').hide();
             });
-            $('.gameoverlay').click(function(){
-
-               //playCyclic();
-              $('.gameoverlay').hide();
-              Q.unpauseGame();
-              /**
-              $('.finger').hide();
-              //alert('clicked get called');
-              //Q.audio.manualPlay();
-              //alert('manual play success');
-                Q.unpauseGame();
-                Q.gameStartTime = new Date().getTime();
-                Q.stageScene(Q.currentStage);
-               **/
-            });
-            $('.gameoverlay').on('touchend', function(e){
-                //Q.myMusic.play();
-                //playCyclic();
-                var evt = e.originalEvent;
-                var touch = evt.changedTouches[0];
-
-                //var b = $('#begin');
-                //var offset = b.offset()
-                $('.button').each(
-                  function(pos, btn){
-                    var rect = btn.getBoundingClientRect();
-                    //alert("touch clientX:"+touch.clientX+", clientY:"+touch.clientY+",left:"+ printObject(rect).join(',')); 
-                    if(rect.left < touch.clientX && rect.right > touch.clientX && rect.top < touch.clientY && rect.bottom > touch.clientY){
-                      //alert('will call method');
-                      btn.touchEnd('');
-                    }
-                  }
-                );
-            });
-
           }
         );
       function showCrash(){

@@ -281,6 +281,7 @@
               //alert('begin called');
               playCyclic();
               $('.gameoverlay').hide();
+              Q.el[0].focus();
               //document.getElementsByTagName('audio')[0].play();
               //document.getElementsByTagName('audio')[0].pause();
             };
@@ -305,7 +306,7 @@
                 $('.gameoverlay').hide();
                 $('.shareoverlay').hide();
             };
-            $('#restart').on('touchend click'. onrestart);
+            $('#restart').on('touchend click', onrestart);
             //$('#restart').click(onrestart);
 
             var onshare = function(el){

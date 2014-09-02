@@ -174,7 +174,7 @@
 
     <div class='gameoverlay textbody roundCorner'> 
       <div class='buttonMiddleRegion'>
-         <div id='restart' style="display:none;background-color:rgb(52,132,191)" class='button buttonRound buttonLeft'>再玩一次</div> 
+         <div id='restart' style="display:none;background-color:rgb(52,132,191)" class='button buttonRound'>再玩一次</div> 
          <div id='share' style="display:none;background-color:rgb(252,203,73)" class='button buttonRound buttonRight'>炫耀一下</div>
       </div>
       <div class='buttonBottomRegion'>
@@ -193,7 +193,11 @@
     </div>
     <canvas id='quintus' width='320' height='480'></canvas>
     <script>
-
+      function isTouchDevice() {
+        var el = document.createElement('div');
+        el.setAttribute('ongesturestart', 'return;'); // or try "ontouchstart"
+        return typeof el.ongesturestart === "function";
+      }
       function printObject(obj){
         var res = [];
         for(var key in obj){
@@ -273,6 +277,12 @@
             console.log('document loaded');
             var curTotal = totalPerson?(27358+totalPerson):27358;
             document.getElementById('counter').innerHTML = curTotal;
+            if(isTouchDevice()){
+              $('#restart').addClass('buttonLeft');
+            }else{
+              $('#restart').addClass('buttonCenter');
+              $('#share').remove();
+            }
             var startFn = function(el){
               //alert('touch end get called');
               Q.unpauseGame();

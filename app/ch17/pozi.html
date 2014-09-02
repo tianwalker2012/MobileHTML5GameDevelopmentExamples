@@ -121,7 +121,7 @@
       }
       .buttonMiddleRegion{
         position: absolute;
-        bottom: 70%;
+        bottom: 60%;
         width: 100%;
         background-color: rgba(100, 100, 100, 0.0);
         z-index: 100;
@@ -194,9 +194,10 @@
     <canvas id='quintus' width='320' height='480'></canvas>
     <script>
       function isTouchDevice() {
-        var el = document.createElement('div');
-        el.setAttribute('ongesturestart', 'return;'); // or try "ontouchstart"
-        return typeof el.ongesturestart === "function";
+        //var el = document.createElement('div');
+        //el.setAttribute('ongesturestart', 'return;'); // or try "ontouchstart"
+        //return typeof el.ongesturestart === "function";
+        return ("ontouchstart" in document.documentElement);
       }
       function printObject(obj){
         var res = [];
@@ -277,9 +278,12 @@
             console.log('document loaded');
             var curTotal = totalPerson?(27358+totalPerson):27358;
             document.getElementById('counter').innerHTML = curTotal;
+            //alert('befroe touch');
             if(isTouchDevice()){
+              //alert('touch');
               $('#restart').addClass('buttonLeft');
             }else{
+              //alert('not touch');
               $('#restart').addClass('buttonCenter');
               $('#share').remove();
             }

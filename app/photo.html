@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>哥伦比亚</title>
+	<title>哥伦比亚带你的照片上太空</title>
 
 	<link href="assets/demoStyles.css" rel="stylesheet" type="text/css" />
 	<link href="assets/pace.css" rel="stylesheet" type="text/css" />
@@ -97,6 +97,31 @@
          	text-align: center;
          	color:#fff;
          	font-size: 130%;
+      	}
+      	.shareoverlay {
+        position: absolute;
+        top:0px;
+        left:0px;
+        width: 100%;
+        height: 100%;
+        z-index: 3000;
+        background: #000;
+        opacity: 0.8;
+        display: none;
+      	}
+
+      	.finger {
+        position: absolute;
+        top:0%;
+        right:0%;
+        color:#ffdd33;
+        font-family:arial;
+      	}
+      	.textbody{
+        color:#fff;
+        /**font-size:140%;**/
+        font-color:#fff;
+        font-family:arial;
       	}
 
       	.progress{
@@ -216,6 +241,18 @@
       		height: 0px;
     		z-index: 100;
       	}
+
+      	#overlay { 
+			z-index:1000; 
+			position:absolute; 
+			top:0; 
+			bottom:0; 
+			left:0; 
+			width:100%; 
+			background:#000; 
+			opacity:0.3; 
+			-moz-opacity:0.3; 
+		} 
 		.button {
 		-webkit-appearance: none;
     	background-color: red;
@@ -251,20 +288,29 @@
 	var maxZoomRatio = 3.0;
     var infoCount = 0;
     Config.helmet = 0;
-
-
+    function getURLParameter(name) {
+ 		 return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+	}
+	function getCurrentURL(){
+		var qPos = window.location.href.indexOf("?");
+		if(qPos > -1){
+			return window.location.href.substring(0, qPos);
+		}
+		return window.location.href;
+	}
+    var oldPhoto = getURLParameter("url");
     function startLoading(){
-    	$(".cover").show();
+    	$(".cover").fadeIn();
     	Pace.start();
     }
 
     function stopLoading(){
-    	$(".cover").hide();
+    	$(".cover").fadeOut();
     	Pace.stop();
     }
 	function debug(info){
-		
 		/**
+		
 		infoCount += 1;
 		if(infoCount > 4){
 			$("#debug")[0].innerHTML = "";
@@ -274,6 +320,7 @@
 		**/
 	}
 
+	
 	function uploadImage(cvs, success, progress)
 	{
 	
@@ -291,6 +338,7 @@
     }
 						// File uploaded / failed
 	xhr.onreadystatechange = function(event) {
+				debug('ajax status:'+xhr.readyState+",status:"+xhr.status+", success:"+success);
 				if (xhr.readyState == 4) {
 					if (xhr.status == 200) {
 						if(success){
@@ -366,7 +414,7 @@
 				console.log('mouse down');
 				//this.parent.addChild(this);
 				var orgEvent = evt.nativeEvent;
-				if(orgEvent.touches.length == 1){
+				if(!orgEvent.touches || orgEvent.touches.length == 1){
 					this.offset = {x:this.x-evt.stageX, y:this.y-evt.stageY};
 					Config.headImage.preDist = 0;
 				}else if(orgEvent.touches.length == 2){
@@ -382,8 +430,8 @@
 			Config.headImage.on("pressmove", function(evt) {
 				//alert('touch move');
 				var e = evt.nativeEvent;
-				debug("move org touch count:"+e.touches.length+","+Config.headImage.preDist);
-				if(e.touches.length == 1){
+				//debug("move org touch count:"+e.touches.length+","+Config.headImage.preDist);
+				if(!e.touches || e.touches.length == 1){
 					this.x = evt.stageX+ this.offset.x;
 					this.y = evt.stageY+ this.offset.y;
 				}else if(e.touches.length == 2){
@@ -436,6 +484,13 @@
 			Config.stage.removeChild(Config.helmet);
 		}
 	};
+	function hideOldPhoto(){
+		if(Config.oldImage){
+			Config.stage.removeChild(Config.oldImage);
+			update = true;
+			Config.oldImage = 0;
+		}
+	}
 	function init() {
 		if (window.top != window) {
 			document.getElementById("header").style.display = "none";
@@ -446,6 +501,8 @@
 		stage = new createjs.Stage(canvas);
 		Config.stage = stage
 		Config.ctx = canvas.getContext("2d");
+		debug(getCurrentURL());
+		debug(getURLParameter("url"));
 		startLoading();
 		// enable touch interactions if supported on the current device:
 		createjs.Touch.enable(stage);
@@ -456,6 +513,7 @@
 		$(".camera").on("mousedown", function(evt){
 			//alert('trigger upload');
 			debug("camera clicked");
+			hideOldPhoto();
 			$("#upload").click();
 		});
 		$(".zoomin").on("mousedown", function(evt){
@@ -512,10 +570,10 @@
 		$(".confirm").on("mousedown", function(evt){
 			//alert('confirmed');
 			debug('confirm adjust');
+			hideOldPhoto();
 			if(!Config.headImage){
 				return;
 			}
-			
 			if(Config.headImage.mask){
 				//Config.headImage.mask = 0;
 				//$(".confirm")[0].innerHTML = "预览";
@@ -534,6 +592,7 @@
 			debug("share clicked");
 			startLoading();
 			createImage = true;
+			update = true;
 		});
 		// load the source image:
 		//var image = new Image();
@@ -558,9 +617,42 @@
 			Config.helmet.y = 0;
 			Config.container.removeChild(Config.helmet);
 			createSelectFrame(canvas, stage);
+
+			if(oldPhoto){
+				var oldImg = new Image();
+				oldImg.src = oldPhoto;
+				oldImg.onload = function(event){
+					Config.oldImage = new createjs.Bitmap(event.target);
+					Config.oldImage.x = (canvas.width - image.width)/2.0;
+					Config.oldImage.y = 0;
+					stage.addChild(Config.oldImage);
+					Config.oldImage.on("mousedown", function(evt){
+						stage.removeChild(Config.oldImage);
+						document.location.href = oldPhoto;
+						Config.oldImage = 0;
+						update = true;
+					});
+					//Config.oldImage.on("mousedown", function(evt){
+					//});
+					/**
+					var element = document.createElement('div');
+      				element.id = "overlay";
+      				document.body.appendChild(element);
+
+      				$(element).on("mousedown", function(evt){
+      					debug("remove overlay");
+      					stage.removeChild(Config.oldImage);
+      					$(element).fadeOut();
+      					update = true;
+      				});
+					**/
+      				update = true;
+				};
+			}
 			update = true;
 			stopLoading();
 		};
+
 
 		enhanceContext(Config.ctx, window.innerHeight, window.innerWidth);
 		
@@ -661,17 +753,32 @@
 			stage.update(event);
 		}
 		if(createImage){
+			if(!Config.headImage){
+				stopLoading();
+				createImage = false;
+				$('.shareoverlay').fadeIn();
+				$('.shareoverlay').on('mousedown', function(evt){
+					console.log('share mouse down');
+					$('.shareoverlay').hide();
+				});
+				return;
+			}
 			console.log("start create images");
 			createImage = false;
 			//Config.headImage.mask = Config.selectFrame;
 			setMask(Config.selectFrame);
 			stage.update(event);
-			uploadImage(canvas, function(percent){
-				console.log('percent'+percent);
-				//stopLoading();
-			}, function(success){
-				console.log('update success');
+			uploadImage(canvas, function(url){
+				
+				document.location.href = getCurrentURL()+"?url="+encodeURIComponent(url);
+				debug("final document url:"+document.location.href);
 				stopLoading();
+				//stopLoading();
+			}, function(pt){
+				console.log('percent'+pt);
+				//console.log('update success');
+				//document.title = "哥伦比亚带你的照片上太空"
+				
 			});
 		}
 	}
@@ -691,7 +798,7 @@
 	<div class="div-bottom">
 	<div class='buttonRound confirm'>预览</div>
 	<div class='buttonRound share'>分享给朋友</div>
-	<div class='buttonRound camera'>上传照片</div>
+	<div class='buttonRound camera'>拍摄</div>
 	<form>
 			<!-- <input type="file" multiple /> -->
 			
@@ -700,6 +807,12 @@
 	</div>
 	<div class="cover loading">
 	</div>
+	 <div class='shareoverlay'>
+    <div class='finger'>
+      <img src='/static/games/ch17/images/finger.png'/>
+      <div>点击分享</div>
+    </div>
+    </div>
 	<div id="debug"></div>
 </body>
 </html>
